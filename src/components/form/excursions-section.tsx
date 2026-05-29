@@ -43,7 +43,7 @@ export function ExcursionsSection({
           <h2 id="excursions-section-title" className="text-lg font-semibold">
             Excursiones / Tickets
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground/80">
             Opcional — actividades y entradas.
           </p>
         </div>

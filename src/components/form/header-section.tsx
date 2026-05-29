@@ -31,7 +31,7 @@ export function HeaderSection({
         <h2 id="header-section-title" className="text-lg font-semibold">
           Datos del viaje
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-foreground/80">
           Información general del presupuesto.
         </p>
       </div>

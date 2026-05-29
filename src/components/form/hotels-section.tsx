@@ -62,7 +62,7 @@ export function HotelsSection({
           <h2 id="hotels-section-title" className="text-lg font-semibold">
             Hoteles
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground/80">
             Opcional — agregue alojamientos si corresponde.
           </p>
         </div>

@@ -28,7 +28,7 @@ export function PriceInput({
       <Label htmlFor={id}>{label}</Label>
       <div className="relative">
         <span
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-foreground/65"
           aria-hidden
         >
           USD
@@ -44,7 +44,7 @@ export function PriceInput({
           {...inputProps}
         />
         <span
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-foreground/65"
           aria-hidden
         >
           $

@@ -43,7 +43,7 @@ export function TransfersSection({
           <h2 id="transfers-section-title" className="text-lg font-semibold">
             Traslados
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground/80">
             Opcional — traslados entre puntos del viaje.
           </p>
         </div>

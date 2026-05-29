@@ -61,7 +61,7 @@ export function FlightsSection({
           <h2 id="flights-section-title" className="text-lg font-semibold">
             Vuelos
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground/80">
             Opcional — agregue vuelos si corresponde.
           </p>
         </div>

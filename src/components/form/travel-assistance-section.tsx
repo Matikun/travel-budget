@@ -37,7 +37,7 @@ export function TravelAssistanceSection({
         >
           Asistencia al viajero
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-foreground/80">
           Opcional — cobertura o seguro de viaje.
         </p>
       </div>
@@ -85,7 +85,7 @@ export function TravelAssistanceSection({
               />
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground" role="status">
+            <p className="text-sm text-foreground/80" role="status">
               Sin asistencia — marque la casilla para agregar si corresponde.
             </p>
           )

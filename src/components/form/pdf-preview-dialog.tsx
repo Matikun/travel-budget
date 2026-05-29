@@ -101,7 +101,7 @@ export function PdfPreviewDialog({
 
         <div className="min-h-[50vh] flex-1 overflow-hidden rounded-md border bg-muted/20">
           {isLoading ? (
-            <p className="flex h-full min-h-[50vh] items-center justify-center text-sm text-muted-foreground">
+            <p className="flex h-full min-h-[50vh] items-center justify-center text-sm text-foreground/80">
               Generando vista previa…
             </p>
           ) : null}
@@ -128,7 +128,7 @@ export function PdfPreviewDialog({
                 className="hidden h-[70vh] w-full sm:block"
               />
               <div className="flex h-full min-h-[40vh] flex-col items-center justify-center gap-3 p-6 text-center sm:hidden">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground/80">
                   En pantallas pequeñas la vista previa integrada puede ser
                   limitada. Descargá el PDF para revisarlo con calidad.
                 </p>
