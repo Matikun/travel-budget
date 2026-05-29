@@ -195,11 +195,11 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 **Goal:** Survive browser close without losing work.
 
 **Tasks:**
-- [ ] Persist form to `localStorage` (debounce ~500 ms).
-- [ ] On load: prompt to restore draft if present (Spanish UI).
-- [ ] “Nuevo presupuesto” / clear form.
-- [ ] (Optional) Export/import JSON backup.
-- [ ] **Tests:** serialize/deserialize round-trip with version key (pure functions in `lib/draft.ts`).
+- [x] Persist form to `localStorage` (debounce ~500 ms).
+- [x] On load: prompt to restore draft if present (Spanish UI).
+- [x] “Nuevo presupuesto” / clear form.
+- [x] (Optional) Export/import JSON backup.
+- [x] **Tests:** serialize/deserialize round-trip with version key (pure functions in `lib/draft.ts`).
 
 **Done when:** Close tab → reopen → data restored; `pnpm validate` still passes.
 
@@ -284,4 +284,4 @@ Recommended solo order: **F0 → F1 → F2 → F3 → F4 → F5 → F6** (do not
 
 ## Immediate next step
 
-**Phase 5:** Local drafts (persist form to `localStorage`, restore on load).
+**Phase 6:** Deploy & handoff (Vercel/Netlify, smoke test PDF, README live URL).

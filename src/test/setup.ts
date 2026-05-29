@@ -13,4 +13,5 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup()
+  localStorage.clear()
 })

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -12,15 +12,27 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import {
+  clearStoredDraft,
+  draftHasContent,
+  exportDraftJson,
+  freshBudgetValues,
+  importDraftJson,
+  readStoredDraft,
+  writeStoredDraft,
+} from '@/lib/draft'
 import { toValidatedBudget } from '@/lib/pdf-helpers'
 import { formatPdfError, logPdfError, type PdfErrorInfo } from '@/lib/pdf-error'
 import {
   budgetFormSchema,
+  defaultBudgetValues,
   initialBudgetValues,
   type Budget,
   type BudgetFormValues,
 } from '@/lib/schema'
 
+import { DraftIncompatibleDialog, DraftRestoreDialog } from './draft-restore-dialog'
+import { DraftToolbar } from './draft-toolbar'
 import { EstimatedTotalBar } from './estimated-total-bar'
 import { ExcursionsSection } from './excursions-section'
 import { FlightsSection } from './flights-section'
@@ -29,6 +41,8 @@ import { HotelsSection } from './hotels-section'
 import { PdfPreviewDialog } from './pdf-preview-dialog'
 import { TransfersSection } from './transfers-section'
 import { TravelAssistanceSection } from './travel-assistance-section'
+
+const DRAFT_DEBOUNCE_MS = 500
 
 type BudgetPdfResult =
   | { ok: true; budget: Budget }
@@ -64,11 +78,27 @@ async function resolveBudgetForPdf(
   return { ok: true, budget }
 }
 
+function downloadJsonBackup(filename: string, content: string) {
+  const blob = new Blob([content], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  anchor.click()
+  URL.revokeObjectURL(url)
+}
+
 export function BudgetForm() {
   const [pdfError, setPdfError] = useState<PdfErrorInfo | null>(null)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewBudget, setPreviewBudget] = useState<Budget | null>(null)
+  const [restoreOpen, setRestoreOpen] = useState(false)
+  const [incompatibleOpen, setIncompatibleOpen] = useState(false)
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null)
+  const [pendingDraft, setPendingDraft] = useState<BudgetFormValues | null>(null)
+  const [importError, setImportError] = useState<string | null>(null)
+  const skipPersistRef = useRef(false)
 
   const {
     control,
@@ -76,12 +106,137 @@ export function BudgetForm() {
     handleSubmit,
     trigger,
     getValues,
+    reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<BudgetFormValues>({
     resolver: zodResolver(budgetFormSchema),
-    defaultValues: initialBudgetValues(),
+    defaultValues: defaultBudgetValues(),
     mode: 'onSubmit',
   })
+
+  const watchedValues = watch()
+
+  useEffect(() => {
+    const result = readStoredDraft()
+
+    if (result.status === 'incompatible' || result.status === 'invalid') {
+      setIncompatibleOpen(true)
+      return
+    }
+
+    if (result.status === 'ok') {
+      setPendingDraft(result.values)
+      setDraftSavedAt(result.savedAt)
+      setRestoreOpen(true)
+      return
+    }
+
+    if (import.meta.env.MODE === 'development') {
+      skipPersistRef.current = true
+      reset(initialBudgetValues())
+      skipPersistRef.current = false
+    }
+  }, [reset])
+
+  useEffect(() => {
+    if (skipPersistRef.current || restoreOpen || incompatibleOpen) {
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      writeStoredDraft(watchedValues)
+    }, DRAFT_DEBOUNCE_MS)
+
+    return () => window.clearTimeout(timer)
+  }, [watchedValues, restoreOpen, incompatibleOpen])
+
+  const applyFormValues = (values: BudgetFormValues) => {
+    skipPersistRef.current = true
+    reset(values)
+    skipPersistRef.current = false
+    writeStoredDraft(values)
+  }
+
+  const handleRestoreDraft = () => {
+    if (pendingDraft) {
+      applyFormValues(pendingDraft)
+    }
+    setRestoreOpen(false)
+    setPendingDraft(null)
+  }
+
+  const handleDiscardDraft = () => {
+    clearStoredDraft()
+    setRestoreOpen(false)
+    setPendingDraft(null)
+
+    if (import.meta.env.MODE === 'development') {
+      applyFormValues(initialBudgetValues())
+    } else {
+      applyFormValues(freshBudgetValues())
+    }
+  }
+
+  const handleDiscardIncompatible = () => {
+    clearStoredDraft()
+    setIncompatibleOpen(false)
+
+    if (import.meta.env.MODE === 'development') {
+      applyFormValues(initialBudgetValues())
+    }
+  }
+
+  const handleNewBudget = () => {
+    const current = getValues()
+    if (draftHasContent(current)) {
+      const confirmed = window.confirm(
+        '¿Crear un presupuesto nuevo? Se perderán los datos actuales del formulario.',
+      )
+      if (!confirmed) {
+        return
+      }
+    }
+
+    applyFormValues(freshBudgetValues())
+    setImportError(null)
+  }
+
+  const handleExportJson = () => {
+    const values = getValues()
+    const slug = values.destination.trim()
+      ? values.destination.trim().toLowerCase().replace(/\s+/g, '-')
+      : 'borrador'
+    downloadJsonBackup(`travel-budget-${slug}.json`, exportDraftJson(values))
+  }
+
+  const handleImportJson = async (file: File) => {
+    setImportError(null)
+
+    let raw: string
+    try {
+      raw = await file.text()
+    } catch {
+      setImportError('No se pudo leer el archivo.')
+      return
+    }
+
+    const result = importDraftJson(raw)
+
+    if (result.status === 'incompatible') {
+      setImportError(
+        'El archivo pertenece a una versión anterior y no se puede importar.',
+      )
+      return
+    }
+
+    if (result.status !== 'ok') {
+      setImportError('El archivo JSON no es un borrador válido.')
+      return
+    }
+
+    applyFormValues(result.values)
+  }
 
   const handleDownloadPdf = async (budget?: Budget) => {
     setPdfError(null)
@@ -131,12 +286,30 @@ export function BudgetForm() {
       >
         <Card>
           <CardHeader>
-            <CardTitle>Presupuesto de viaje</CardTitle>
-            <CardDescription>
-              Complete los datos del viaje. Vuelos y hoteles son opcionales.
-            </CardDescription>
+            <div className="flex flex-col gap-4">
+              <div>
+                <CardTitle>Presupuesto de viaje</CardTitle>
+                <CardDescription>
+                  Complete los datos del viaje. Vuelos y hoteles son opcionales.
+                  El borrador se guarda automáticamente en este navegador.
+                </CardDescription>
+              </div>
+              <DraftToolbar
+                onNewBudget={handleNewBudget}
+                onExport={handleExportJson}
+                onImport={(file) => void handleImportJson(file)}
+              />
+            </div>
           </CardHeader>
           <CardContent className="space-y-8">
+            {importError ? (
+              <div
+                className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                role="alert"
+              >
+                {importError}
+              </div>
+            ) : null}
             <HeaderSection
               control={control}
               errors={errors}
@@ -215,6 +388,18 @@ export function BudgetForm() {
         </Card>
         <EstimatedTotalBar control={control} />
       </form>
+
+      <DraftRestoreDialog
+        open={restoreOpen}
+        savedAt={draftSavedAt}
+        onRestore={handleRestoreDraft}
+        onDiscard={handleDiscardDraft}
+      />
+
+      <DraftIncompatibleDialog
+        open={incompatibleOpen}
+        onDiscard={handleDiscardIncompatible}
+      />
 
       <PdfPreviewDialog
         open={previewOpen}
