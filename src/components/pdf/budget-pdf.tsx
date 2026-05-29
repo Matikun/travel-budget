@@ -125,10 +125,12 @@ export function BudgetPdf({ budget }: BudgetPdfProps) {
   return (
     <Document title={`Presupuesto — ${budget.destination}`}>
       <Page size="A4" style={pdfStyles.page}>
-        <Text style={pdfStyles.title}>Presupuesto de viaje</Text>
-        <Text style={pdfStyles.subtitle}>
-          Cotización generada para operadores
-        </Text>
+        <View style={pdfStyles.header}>
+          <Text style={pdfStyles.title}>Presupuesto de viaje</Text>
+          <Text style={pdfStyles.subtitle}>
+            Cotización generada para operadores
+          </Text>
+        </View>
 
         <View style={pdfStyles.metaRow}>
           <View style={pdfStyles.metaItem}>
@@ -143,7 +145,7 @@ export function BudgetPdf({ budget }: BudgetPdfProps) {
           </View>
           <View style={pdfStyles.metaItem}>
             <Text style={pdfStyles.metaLabel}>Pasajeros</Text>
-            <Text style={pdfStyles.metaValue}>{budget.passengers}</Text>
+            <Text style={pdfStyles.metaValue}>{String(budget.passengers)}</Text>
           </View>
         </View>
 
