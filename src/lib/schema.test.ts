@@ -7,6 +7,7 @@ import {
   defaultFlight,
   defaultHotel,
   defaultTransfer,
+  sampleBudgetValues,
 } from './schema'
 
 const baseHeader = {
@@ -281,5 +282,21 @@ describe('defaultBudgetValues', () => {
     expect(defaultHotel().roomType).toBe('standard')
     expect(defaultExcursion().name).toBe('')
     expect(defaultTransfer().from).toBe('')
+  })
+})
+
+describe('sampleBudgetValues', () => {
+  it('passes full budget validation', () => {
+    const result = budgetSchema.safeParse(sampleBudgetValues())
+    expect(result.success).toBe(true)
+  })
+
+  it('includes all sections for manual QA', () => {
+    const sample = sampleBudgetValues()
+    expect(sample.flights.length).toBeGreaterThan(0)
+    expect(sample.hotels.length).toBeGreaterThan(0)
+    expect(sample.excursions.length).toBeGreaterThan(0)
+    expect(sample.transfers.length).toBeGreaterThan(0)
+    expect(sample.travelAssistance.enabled).toBe(true)
   })
 })

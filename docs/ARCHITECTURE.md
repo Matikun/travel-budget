@@ -23,6 +23,17 @@ flowchart LR
 4. **Format** — `lib/format.ts` for currency (`en-US`) and dates.
 5. **PDF** — `components/pdf/` renders only sections that have content; total shown when enabled and prices exist.
 
+## Content Security Policy
+
+`@react-pdf/renderer` uses the Yoga layout engine (WebAssembly). In-browser PDF generation requires:
+
+- `script-src 'unsafe-eval' 'wasm-unsafe-eval'` — WASM compilation
+- `connect-src data:` — Yoga ships its WASM as a `data:` URI
+
+Configured in `src/lib/csp.ts` for production/preview builds and deploy headers (`vercel.json`, `public/_headers`). **Dev server sends no CSP header** so local testing is not restricted.
+
+If PDF generation fails inside Cursor’s embedded browser preview, open the app in **Chrome or Edge** — the IDE preview may apply a stricter CSP that cannot be overridden by the app.
+
 ## Folder layout
 
 | Path | Role |

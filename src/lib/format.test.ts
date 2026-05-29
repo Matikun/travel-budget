@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatUsd } from './format'
+import { formatDate, formatUsd } from './format'
 
 describe('formatUsd', () => {
   it('formats numbers as USD', () => {
@@ -21,5 +21,11 @@ describe('formatUsd', () => {
 
   it('returns empty string for null', () => {
     expect(formatUsd(null)).toBe('')
+  })
+})
+
+describe('formatDate', () => {
+  it('formats dates in Spanish locale', () => {
+    expect(formatDate(new Date(2026, 0, 15))).toMatch(/15.*2026/)
   })
 })

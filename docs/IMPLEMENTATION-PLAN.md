@@ -153,19 +153,19 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 **Goal:** Generate and download PDF from validated data.
 
 **Tasks:**
-- [ ] Register sans font (e.g. Inter) for `@react-pdf/renderer`.
-- [ ] `BudgetPdf` component — accepts parsed `Budget` type.
-- [ ] PDF layout:
+- [x] Register sans font (e.g. Inter) for `@react-pdf/renderer`.
+- [x] `BudgetPdf` component — accepts parsed `Budget` type.
+- [x] PDF layout:
   - Header: destination, dates, passengers.
   - Section blocks **only if items exist** (or assistance enabled).
   - Per item: details + right-aligned price when present.
   - Flights: Direct vs layover list.
   - Hotels: nights or date range, room type, breakfast, all inclusive.
   - Footer total only if `showTotalInPdf` && sum > 0.
-- [ ] Styles: sober palette (e.g. `#1e3a5f` headings), A4 margins.
-- [ ] **Download PDF** — validate form first; `pdf()` → blob → `quote-{destination}-{date}.pdf`.
-- [ ] Error handling if generation fails (user-facing Spanish message).
-- [ ] **Tests:** pure helpers for “section has content” / filename slug (if extracted); manual checklist in `docs/` for visual PDF QA.
+- [x] Styles: sober palette (e.g. `#1e3a5f` headings), A4 margins.
+- [x] **Download PDF** — validate form first; `pdf()` → blob → `quote-{destination}-{date}.pdf`.
+- [x] Error handling if generation fails (user-facing Spanish message).
+- [x] **Tests:** pure helpers for “section has content” / filename slug (if extracted); manual checklist in `docs/` for visual PDF QA.
 
 **Done when:** Valid form → download → PDF matches input; empty sections omitted.
 
@@ -284,4 +284,4 @@ Recommended solo order: **F0 → F1 → F2 → F3 → F4 → F5 → F6** (do not
 
 ## Immediate next step
 
-**Phase 3:** PDF template (`BudgetPdf`), font registration, download flow with form validation.
+**Phase 4:** Embedded PDF preview, UX polish (empty states, confirm on remove, accessibility).

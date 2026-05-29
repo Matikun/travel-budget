@@ -241,3 +241,91 @@ export function defaultBudgetValues(): BudgetFormValues {
     showTotalInPdf: true,
   }
 }
+
+/** Pre-filled budget for local dev / manual QA (passes validation). */
+export function sampleBudgetValues(): BudgetFormValues {
+  const tripStart = new Date(2026, 5, 10)
+  const tripEnd = new Date(2026, 5, 17)
+
+  return {
+    destination: 'Bariloche',
+    dateFrom: tripStart,
+    dateTo: tripEnd,
+    passengers: 2,
+    flights: [
+      {
+        route: 'Buenos Aires (AEP) → Bariloche (BRC)',
+        duration: '2h 15m',
+        description: 'Vuelo ida — equipaje de mano incluido',
+        type: 'direct',
+        layovers: [],
+        priceUsd: 285,
+      },
+      {
+        route: 'Bariloche (BRC) → Buenos Aires (AEP)',
+        duration: '5h 40m',
+        description: 'Vuelo vuelta con escala',
+        type: 'layovers',
+        layovers: [
+          { where: 'Córdoba (COR)', duration: '1h 20m' },
+        ],
+        priceUsd: 310,
+      },
+    ],
+    hotels: [
+      {
+        name: 'Hotel Llao Llao',
+        dateFrom: new Date(2026, 5, 10),
+        dateTo: new Date(2026, 5, 14),
+        nights: undefined,
+        roomType: 'double',
+        breakfast: true,
+        allInclusive: false,
+        priceUsd: 890,
+      },
+      {
+        name: 'Hostería del Cerro',
+        dateFrom: undefined,
+        dateTo: undefined,
+        nights: 3,
+        roomType: 'standard',
+        breakfast: false,
+        allInclusive: false,
+        priceUsd: 420,
+      },
+    ],
+    excursions: [
+      {
+        name: 'Circuito Chico',
+        description: 'Medio día con guía bilingüe',
+        priceUsd: 65,
+      },
+      {
+        name: 'Cerro Catedral — ticket lift',
+        description: 'Pase diario',
+        priceUsd: 48,
+      },
+    ],
+    transfers: [
+      {
+        from: 'Aeropuerto BRC',
+        to: 'Hotel Llao Llao',
+        description: 'Traslado privado ida',
+        priceUsd: 55,
+      },
+    ],
+    travelAssistance: {
+      enabled: true,
+      description: 'Asistencia al viajero 7 días — cobertura USD 50.000',
+      priceUsd: 42,
+    },
+    showTotalInPdf: true,
+  }
+}
+
+/** Empty form in production/tests; sample data in dev for faster manual testing. */
+export function initialBudgetValues(): BudgetFormValues {
+  return import.meta.env.MODE === 'development'
+    ? sampleBudgetValues()
+    : defaultBudgetValues()
+}

@@ -16,6 +16,7 @@ describe('App', () => {
     ).toBeInTheDocument()
     expect(screen.getByText(/total estimado/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/mostrar total en el pdf/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /descargar pdf/i })).toBeInTheDocument()
   })
 
   it('can add and remove a flight row', async () => {

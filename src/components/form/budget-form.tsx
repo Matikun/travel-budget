@@ -11,10 +11,11 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { toValidatedBudget } from '@/lib/pdf-helpers'
+import { formatPdfError, logPdfError, type PdfErrorInfo } from '@/lib/pdf-error'
 import {
   budgetFormSchema,
-  defaultBudgetValues,
-  type Budget,
+  initialBudgetValues,
   type BudgetFormValues,
 } from '@/lib/schema'
 
@@ -27,33 +28,57 @@ import { TransfersSection } from './transfers-section'
 import { TravelAssistanceSection } from './travel-assistance-section'
 
 export function BudgetForm() {
-  const [lastSubmitted, setLastSubmitted] = useState<Budget | null>(null)
+  const [pdfError, setPdfError] = useState<PdfErrorInfo | null>(null)
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
 
   const {
     control,
     register,
     handleSubmit,
+    trigger,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<BudgetFormValues>({
     resolver: zodResolver(budgetFormSchema),
-    defaultValues: defaultBudgetValues(),
+    defaultValues: initialBudgetValues(),
     mode: 'onSubmit',
   })
 
-  const onSubmit = (data: BudgetFormValues) => {
-    if (!data.dateFrom || !data.dateTo) {
+  const handleDownloadPdf = async () => {
+    setPdfError(null)
+    const valid = await trigger()
+
+    if (!valid) {
+      setPdfError({
+        title: 'Hay errores en el formulario. Corregilos antes de generar el PDF.',
+        hint: 'Revisá los campos marcados en rojo.',
+      })
       return
     }
-    setLastSubmitted({
-      ...data,
-      dateFrom: data.dateFrom,
-      dateTo: data.dateTo,
-    })
+
+    const budget = toValidatedBudget(getValues())
+    if (!budget) {
+      setPdfError({
+        title: 'Faltan fechas obligatorias en el encabezado.',
+      })
+      return
+    }
+
+    try {
+      setIsGeneratingPdf(true)
+      const { downloadBudgetPdf } = await import('@/lib/download-pdf')
+      await downloadBudgetPdf(budget)
+    } catch (error) {
+      logPdfError(error, budget)
+      setPdfError(formatPdfError(error))
+    } finally {
+      setIsGeneratingPdf(false)
+    }
   }
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(() => undefined)}
       className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-28 sm:p-6"
       noValidate
     >
@@ -97,26 +122,30 @@ export function BudgetForm() {
             register={register}
           />
           <Separator />
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground">
-              La generación de PDF estará disponible en la Fase 3.
-            </p>
-            <Button type="submit" disabled={isSubmitting}>
-              Validar presupuesto
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            <Button
+              type="button"
+              disabled={isSubmitting || isGeneratingPdf}
+              onClick={() => void handleDownloadPdf()}
+            >
+              {isGeneratingPdf ? 'Generando PDF…' : 'Descargar PDF'}
             </Button>
           </div>
-          {lastSubmitted ? (
-            <output
-              className="rounded-md border border-green-600/30 bg-green-50 px-4 py-3 text-sm text-green-900 dark:bg-green-950/30 dark:text-green-100"
-              aria-live="polite"
+          {pdfError ? (
+            <div
+              className="space-y-2 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              role="alert"
             >
-              Presupuesto válido para{' '}
-              <strong>{lastSubmitted.destination}</strong> —{' '}
-              {lastSubmitted.flights.length} vuelo(s),{' '}
-              {lastSubmitted.hotels.length} hotel(es),{' '}
-              {lastSubmitted.excursions.length} excursión(es),{' '}
-              {lastSubmitted.transfers.length} traslado(s).
-            </output>
+              <p className="font-medium">{pdfError.title}</p>
+              {pdfError.detail ? (
+                <p className="break-all font-mono text-xs opacity-90">
+                  {pdfError.detail}
+                </p>
+              ) : null}
+              {pdfError.hint ? (
+                <p className="text-xs opacity-90">{pdfError.hint}</p>
+              ) : null}
+            </div>
           ) : null}
         </CardContent>
       </Card>

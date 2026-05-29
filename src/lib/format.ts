@@ -1,3 +1,13 @@
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
+
+/**
+ * Formats a date for UI and PDF (Spanish locale).
+ */
+export function formatDate(value: Date): string {
+  return format(value, 'd MMM yyyy', { locale: es })
+}
+
 /**
  * Formats a USD amount for display (en-US locale).
  * Returns empty string when value is undefined or null.
