@@ -10,6 +10,7 @@ export const productionCsp = [
   "connect-src 'self' data: blob:",
   "font-src 'self' data:",
   "img-src 'self' data: blob:",
+  "frame-src 'self' blob:",
   "worker-src 'self' blob:",
 ].join('; ')
 

@@ -29,6 +29,7 @@ flowchart LR
 
 - `script-src 'unsafe-eval' 'wasm-unsafe-eval'` — WASM compilation
 - `connect-src data:` — Yoga ships its WASM as a `data:` URI
+- `frame-src blob:` — PDF preview embeds a `blob:` URL in an `<iframe>`
 
 Configured in `src/lib/csp.ts` for production/preview builds and deploy headers (`vercel.json`, `public/_headers`). **Dev server sends no CSP header** so local testing is not restricted.
 
