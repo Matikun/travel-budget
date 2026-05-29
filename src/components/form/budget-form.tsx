@@ -4,13 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import {
   clearStoredDraft,
@@ -33,6 +27,7 @@ import {
 
 import { DraftIncompatibleDialog, DraftRestoreDialog } from './draft-restore-dialog'
 import { DraftToolbar } from './draft-toolbar'
+import { FormPageHeader } from './form-page-header'
 import { EstimatedTotalBar } from './estimated-total-bar'
 import { ExcursionsSection } from './excursions-section'
 import { FlightsSection } from './flights-section'
@@ -284,24 +279,18 @@ export function BudgetForm() {
         noValidate
         aria-label="Formulario de presupuesto de viaje"
       >
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col gap-4">
-              <div>
-                <CardTitle>Presupuesto de viaje</CardTitle>
-                <CardDescription>
-                  Complete los datos del viaje. Vuelos y hoteles son opcionales.
-                  El borrador se guarda automáticamente en este navegador.
-                </CardDescription>
-              </div>
+        <Card className="gap-0 overflow-hidden border-border/80 py-0 shadow-md dark:border-border dark:shadow-lg dark:shadow-black/25">
+          <FormPageHeader
+            destination={watchedValues.destination ?? ''}
+            toolbar={
               <DraftToolbar
                 onNewBudget={handleNewBudget}
                 onExport={handleExportJson}
                 onImport={(file) => void handleImportJson(file)}
               />
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-8">
+            }
+          />
+          <CardContent className="space-y-8 px-6 py-6">
             {importError ? (
               <div
                 className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"

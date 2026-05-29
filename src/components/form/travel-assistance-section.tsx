@@ -33,11 +33,11 @@ export function TravelAssistanceSection({
       <div>
         <h2
           id="travel-assistance-section-title"
-          className="text-lg font-semibold"
+          className="text-base font-semibold tracking-tight"
         >
           Asistencia al viajero
         </h2>
-        <p className="text-sm text-foreground/80">
+        <p className="text-sm text-muted-foreground">
           Opcional — cobertura o seguro de viaje.
         </p>
       </div>

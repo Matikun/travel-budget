@@ -58,10 +58,13 @@ export function FlightsSection({
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 id="flights-section-title" className="text-lg font-semibold">
+          <h2
+            id="flights-section-title"
+            className="text-base font-semibold tracking-tight"
+          >
             Vuelos
           </h2>
-          <p className="text-sm text-foreground/80">
+          <p className="text-sm text-muted-foreground">
             Opcional — agregue vuelos si corresponde.
           </p>
         </div>

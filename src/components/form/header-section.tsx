@@ -28,11 +28,14 @@ export function HeaderSection({
       role="region"
     >
       <div>
-        <h2 id="header-section-title" className="text-lg font-semibold">
-          Datos del viaje
+        <h2
+          id="header-section-title"
+          className="text-base font-semibold tracking-tight"
+        >
+          Información general
         </h2>
-        <p className="text-sm text-foreground/80">
-          Información general del presupuesto.
+        <p className="text-sm text-muted-foreground">
+          Destino, fechas y cantidad de pasajeros.
         </p>
       </div>
 

@@ -59,10 +59,13 @@ export function HotelsSection({
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 id="hotels-section-title" className="text-lg font-semibold">
+          <h2
+            id="hotels-section-title"
+            className="text-base font-semibold tracking-tight"
+          >
             Hoteles
           </h2>
-          <p className="text-sm text-foreground/80">
+          <p className="text-sm text-muted-foreground">
             Opcional — agregue alojamientos si corresponde.
           </p>
         </div>

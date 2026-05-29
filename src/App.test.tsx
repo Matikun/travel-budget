@@ -7,7 +7,9 @@ import App from './App'
 describe('App', () => {
   it('renders the budget form shell', () => {
     render(<App />)
-    expect(screen.getByText('Presupuesto de viaje')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 1, name: /nuevo presupuesto/i }),
+    ).toBeInTheDocument()
     expect(screen.getByLabelText('Destino')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /agregar vuelo/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /agregar hotel/i })).toBeInTheDocument()

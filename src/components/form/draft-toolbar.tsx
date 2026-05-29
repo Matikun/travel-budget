@@ -17,48 +17,59 @@ export function DraftToolbar({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   return (
-    <div
-      className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end"
-      role="group"
-      aria-label="Borrador y respaldo"
-    >
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="application/json,.json"
-        className="sr-only"
-        aria-hidden
-        tabIndex={-1}
-        onChange={(event) => {
-          const file = event.target.files?.[0]
-          if (file) {
-            onImport(file)
-          }
-          event.target.value = ''
-        }}
-      />
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={onNewBudget}
+    <div className="flex flex-col gap-2.5">
+      <p className="text-xs font-medium text-muted-foreground">Borrador y respaldo</p>
+      <div
+        className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-3"
+        role="group"
+        aria-label="Borrador y respaldo"
       >
-        <FilePlus2 className="size-4" />
-        Nuevo presupuesto
-      </Button>
-      <Button type="button" variant="outline" size="sm" onClick={onExport}>
-        <Download className="size-4" />
-        Exportar JSON
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <FileUp className="size-4" />
-        Importar JSON
-      </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          className="sr-only"
+          aria-hidden
+          tabIndex={-1}
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            if (file) {
+              onImport(file)
+            }
+            event.target.value = ''
+          }}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full justify-center"
+          onClick={onNewBudget}
+        >
+          <FilePlus2 className="size-4" />
+          Nuevo presupuesto
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full justify-center"
+          onClick={onExport}
+        >
+          <Download className="size-4" />
+          Exportar JSON
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full justify-center"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <FileUp className="size-4" />
+          Importar JSON
+        </Button>
+      </div>
     </div>
   )
 }
