@@ -83,11 +83,11 @@ What reviewers should see on GitHub:
 **Goal:** Repo ready to develop with pnpm, lint, test, and English docs skeleton.
 
 **Tasks:**
-- [ ] Scaffold Vite (`react-ts`) with **pnpm**.
-- [ ] Tailwind + shadcn/ui (Button, Input, Label, Card, Separator, Checkbox, Select, Textarea, Calendar, Popover).
-- [ ] Dependencies: `react-hook-form`, `@hookform/resolvers`, `zod`, `@react-pdf/renderer`, `date-fns`.
-- [ ] Dev deps: `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `jsdom`, ESLint, Prettier.
-- [ ] Folder structure:
+- [x] Scaffold Vite (`react-ts`) with **pnpm**.
+- [x] Tailwind + shadcn/ui (Button, Input, Label, Card, Separator, Checkbox, Select, Textarea, Calendar, Popover).
+- [x] Dependencies: `react-hook-form`, `@hookform/resolvers`, `zod`, `@react-pdf/renderer`, `date-fns`.
+- [x] Dev deps: `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `jsdom`, ESLint, Prettier.
+- [x] Folder structure:
   ```
   src/
     components/ui/          # shadcn
@@ -105,10 +105,10 @@ What reviewers should see on GitHub:
     IMPLEMENTATION-PLAN.md
     ARCHITECTURE.md
   ```
-- [ ] `package.json` scripts: `dev`, `build`, `test`, `test:watch`, `lint`, `typecheck`, **`validate`**.
-- [ ] **README.md (English):** prerequisites, install, dev, test, build, project purpose.
-- [ ] `.github/workflows/ci.yml` (optional): `pnpm validate` on push/PR.
-- [ ] `LICENSE` if public repo (MIT typical).
+- [x] `package.json` scripts: `dev`, `build`, `test`, `test:watch`, `lint`, `typecheck`, **`validate`**.
+- [x] **README.md (English):** prerequisites, install, dev, test, build, project purpose.
+- [x] `.github/workflows/ci.yml` (optional): `pnpm validate` on push/PR.
+- [x] `LICENSE` if public repo (MIT typical).
 
 **Done when:** `pnpm dev` runs; `pnpm validate` passes (smoke test + empty build); shadcn renders.
 
@@ -120,25 +120,25 @@ What reviewers should see on GitHub:
 **Goal:** Core form with optional flights/hotels arrays.
 
 **Tasks:**
-- [ ] Zod schemas in `lib/schema.ts` (`Budget`, `Flight`, `Hotel`, nested `Layover`, etc.).
-- [ ] **Default values:** all arrays **empty**; sensible empty header defaults.
-- [ ] Header UI: destination, date from/to, passengers.
-- [ ] **Flights** (`useFieldArray`, starts empty):
+- [x] Zod schemas in `lib/schema.ts` (`Budget`, `Flight`, `Hotel`, nested `Layover`, etc.).
+- [x] **Default values:** all arrays **empty**; sensible empty header defaults.
+- [x] Header UI: destination, date from/to, passengers.
+- [x] **Flights** (`useFieldArray`, starts empty):
   - route, duration, description;
   - type: direct | layovers;
   - if layovers: nested dynamic array (where + duration);
   - optional USD price;
   - add / remove — **minimum 0 flights**.
-- [ ] **Hotels** (`useFieldArray`, starts empty):
+- [x] **Hotels** (`useFieldArray`, starts empty):
   - name;
   - date from/to **or** night count (at least one per row when filled);
   - room type: standard | double | triple | luxury;
   - breakfast yes/no, all inclusive;
   - optional USD price;
   - add / remove — **minimum 0 hotels**.
-- [ ] Validation on submit — **messages in Spanish** (UI).
-- [ ] Responsive layout: cards per section, clear headings.
-- [ ] **Tests:** `schema.test.ts` (valid/invalid payloads, empty arrays, date rules); optional test for default form values.
+- [x] Validation on submit — **messages in Spanish** (UI).
+- [x] Responsive layout: cards per section, clear headings.
+- [x] **Tests:** `schema.test.ts` (valid/invalid payloads, empty arrays, date rules); optional test for default form values.
 
 **Done when:** Budget with 0 flights / 0 hotels submits; budget with 2 flights + 3 hotels validates; errors visible; `pnpm test` green.
 
@@ -300,4 +300,4 @@ Recommended solo order: **F0 → F1 → F2 → F3 → F4 → F5 → F6** (do not
 
 ## Immediate next step
 
-**Phase 0:** Scaffold `travel-budget` with pnpm, Vite, shadcn, Vitest, ESLint/Prettier, English README, and `pnpm validate`.
+**Phase 2:** Add excursions, transfers, travel assistance, live total bar, and `totals` / `format` tests.
