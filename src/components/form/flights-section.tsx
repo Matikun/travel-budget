@@ -22,6 +22,7 @@ import {
 } from '@/lib/schema'
 
 import { FieldErrorMessage } from './field-error'
+import { PriceInput } from './price-input'
 
 const FLIGHT_TYPE_LABELS: Record<FlightType, string> = {
   direct: 'Directo',
@@ -160,22 +161,14 @@ function FlightRow({
           <FieldErrorMessage error={errors?.duration} />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor={`flights.${index}.priceUsd`}>Precio (USD)</Label>
-          <Input
-            id={`flights.${index}.priceUsd`}
-            type="number"
-            min={0}
-            step="0.01"
-            placeholder="Opcional"
-            aria-invalid={Boolean(errors?.priceUsd)}
-            {...register(`flights.${index}.priceUsd`, {
-              setValueAs: (value: string) =>
-                value === '' ? undefined : Number(value),
-            })}
-          />
-          <FieldErrorMessage error={errors?.priceUsd} />
-        </div>
+        <PriceInput
+          id={`flights.${index}.priceUsd`}
+          error={errors?.priceUsd}
+          {...register(`flights.${index}.priceUsd`, {
+            setValueAs: (value: string) =>
+              value === '' ? undefined : Number(value),
+          })}
+        />
 
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor={`flights.${index}.description`}>

@@ -1,0 +1,135 @@
+import { Plus, Trash2 } from 'lucide-react'
+import type { Control, FieldErrors, FieldErrorsImpl } from 'react-hook-form'
+import { useFieldArray } from 'react-hook-form'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { defaultExcursion, type BudgetFormValues } from '@/lib/schema'
+
+import { FieldErrorMessage } from './field-error'
+import { PriceInput } from './price-input'
+
+type ExcursionsSectionProps = {
+  control: Control<BudgetFormValues>
+  errors: FieldErrors<BudgetFormValues>
+  register: ReturnType<
+    typeof import('react-hook-form').useForm<BudgetFormValues>
+  >['register']
+}
+
+export function ExcursionsSection({
+  control,
+  errors,
+  register,
+}: ExcursionsSectionProps) {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'excursions',
+  })
+
+  return (
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-semibold">Excursiones / Tickets</h2>
+          <p className="text-sm text-muted-foreground">
+            Opcional — actividades y entradas.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => append(defaultExcursion())}
+        >
+          <Plus className="mr-1 size-4" />
+          Agregar excursión
+        </Button>
+      </div>
+
+      {fields.length === 0 ? (
+        <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
+          Sin excursiones cargadas.
+        </p>
+      ) : (
+        <div className="space-y-6">
+          {fields.map((field, index) => (
+            <ExcursionRow
+              key={field.id}
+              index={index}
+              errors={errors.excursions?.[index]}
+              register={register}
+              onRemove={() => remove(index)}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+type ExcursionFieldErrors = FieldErrorsImpl<{
+  name: string
+  description?: string
+  priceUsd?: number
+}>
+
+type ExcursionRowProps = {
+  index: number
+  errors?: ExcursionFieldErrors
+  register: ExcursionsSectionProps['register']
+  onRemove: () => void
+}
+
+function ExcursionRow({ index, errors, register, onRemove }: ExcursionRowProps) {
+  return (
+    <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="font-medium">Excursión {index + 1}</h3>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onRemove}
+          className="text-destructive hover:text-destructive"
+        >
+          <Trash2 className="mr-1 size-4" />
+          Quitar
+        </Button>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`excursions.${index}.name`}>Nombre</Label>
+        <Input
+          id={`excursions.${index}.name`}
+          placeholder="Ej. Trekking al Fitz Roy"
+          aria-invalid={Boolean(errors?.name)}
+          {...register(`excursions.${index}.name`)}
+        />
+        <FieldErrorMessage error={errors?.name} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`excursions.${index}.description`}>
+          Descripción (opcional)
+        </Label>
+        <Textarea
+          id={`excursions.${index}.description`}
+          placeholder="Detalles, horarios, incluye guía, etc."
+          {...register(`excursions.${index}.description`)}
+        />
+      </div>
+
+      <PriceInput
+        id={`excursions.${index}.priceUsd`}
+        error={errors?.priceUsd}
+        {...register(`excursions.${index}.priceUsd`, {
+          setValueAs: (value: string) =>
+            value === '' ? undefined : Number(value),
+        })}
+      />
+    </div>
+  )
+}

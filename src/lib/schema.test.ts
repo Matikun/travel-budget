@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest'
 import {
   budgetSchema,
   defaultBudgetValues,
+  defaultExcursion,
   defaultFlight,
   defaultHotel,
+  defaultTransfer,
 } from './schema'
 
 const baseHeader = {
@@ -14,12 +16,20 @@ const baseHeader = {
   passengers: 2,
 }
 
+const emptySections = {
+  excursions: [] as const,
+  transfers: [] as const,
+  travelAssistance: { enabled: false as const },
+  showTotalInPdf: true,
+}
+
 describe('budgetSchema', () => {
   it('accepts header only with empty flights and hotels', () => {
     const result = budgetSchema.safeParse({
       ...baseHeader,
       flights: [],
       hotels: [],
+      ...emptySections,
     })
     expect(result.success).toBe(true)
   })
@@ -30,6 +40,7 @@ describe('budgetSchema', () => {
       destination: '',
       flights: [],
       hotels: [],
+      ...emptySections,
     })
     expect(result.success).toBe(false)
   })
@@ -41,6 +52,7 @@ describe('budgetSchema', () => {
       dateTo: new Date('2026-06-01'),
       flights: [],
       hotels: [],
+      ...emptySections,
     })
     expect(result.success).toBe(false)
     if (!result.success) {
@@ -55,6 +67,7 @@ describe('budgetSchema', () => {
       passengers: 0,
       flights: [],
       hotels: [],
+      ...emptySections,
     })
     expect(result.success).toBe(false)
   })
@@ -65,6 +78,7 @@ describe('budgetSchema', () => {
       passengers: 100,
       flights: [],
       hotels: [],
+      ...emptySections,
     })
     expect(result.success).toBe(false)
   })
@@ -116,8 +130,65 @@ describe('budgetSchema', () => {
           priceUsd: 0,
         },
       ],
+      ...emptySections,
     })
     expect(result.success).toBe(true)
+  })
+
+  it('accepts excursions, transfers, and enabled assistance', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      excursions: [{ name: 'City tour', description: 'Medio día', priceUsd: 80 }],
+      transfers: [
+        { from: 'Aeropuerto', to: 'Hotel', description: 'Privado', priceUsd: 35 },
+      ],
+      travelAssistance: {
+        enabled: true,
+        description: 'Cobertura médica',
+        priceUsd: 25,
+      },
+      showTotalInPdf: false,
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects enabled assistance without description', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      ...emptySections,
+      travelAssistance: { enabled: true, description: '  ' },
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects excursion without name', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      excursions: [{ name: '', priceUsd: 10 }],
+      transfers: [],
+      travelAssistance: { enabled: false },
+      showTotalInPdf: true,
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects transfer without from or to', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      excursions: [],
+      transfers: [{ from: '', to: 'Hotel', priceUsd: 10 }],
+      travelAssistance: { enabled: false },
+      showTotalInPdf: true,
+    })
+    expect(result.success).toBe(false)
   })
 
   it('rejects layover flight without layover rows', () => {
@@ -132,6 +203,7 @@ describe('budgetSchema', () => {
         },
       ],
       hotels: [],
+      ...emptySections,
     })
     expect(result.success).toBe(false)
   })
@@ -148,6 +220,7 @@ describe('budgetSchema', () => {
           allInclusive: false,
         },
       ],
+      ...emptySections,
     })
     expect(result.success).toBe(false)
   })
@@ -166,6 +239,7 @@ describe('budgetSchema', () => {
           allInclusive: false,
         },
       ],
+      ...emptySections,
     })
     expect(result.success).toBe(false)
   })
@@ -183,22 +257,29 @@ describe('budgetSchema', () => {
         },
       ],
       hotels: [],
+      ...emptySections,
     })
     expect(result.success).toBe(false)
   })
 })
 
 describe('defaultBudgetValues', () => {
-  it('starts with empty flights and hotels arrays', () => {
+  it('starts with empty dynamic sections', () => {
     const defaults = defaultBudgetValues()
     expect(defaults.flights).toEqual([])
     expect(defaults.hotels).toEqual([])
+    expect(defaults.excursions).toEqual([])
+    expect(defaults.transfers).toEqual([])
+    expect(defaults.travelAssistance.enabled).toBe(false)
+    expect(defaults.showTotalInPdf).toBe(true)
     expect(defaults.passengers).toBe(1)
   })
 
-  it('default flight and hotel factories match schema shape', () => {
+  it('default factories match schema shape', () => {
     expect(defaultFlight().type).toBe('direct')
     expect(defaultFlight().layovers).toEqual([])
     expect(defaultHotel().roomType).toBe('standard')
+    expect(defaultExcursion().name).toBe('')
+    expect(defaultTransfer().from).toBe('')
   })
 })

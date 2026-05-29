@@ -11,6 +11,11 @@ describe('App', () => {
     expect(screen.getByLabelText('Destino')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /agregar vuelo/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /agregar hotel/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /agregar excursión/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/total estimado/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/mostrar total en el pdf/i)).toBeInTheDocument()
   })
 
   it('can add and remove a flight row', async () => {

@@ -86,6 +86,41 @@ export const hotelSchema = z
 
 export type Hotel = z.infer<typeof hotelSchema>
 
+export const excursionSchema = z.object({
+  name: z.string().min(1, 'Indique el nombre de la excursión o ticket'),
+  description: z.string().optional(),
+  priceUsd: optionalUsdPriceSchema,
+})
+
+export type Excursion = z.infer<typeof excursionSchema>
+
+export const transferSchema = z.object({
+  from: z.string().min(1, 'Indique el origen del traslado'),
+  to: z.string().min(1, 'Indique el destino del traslado'),
+  description: z.string().optional(),
+  priceUsd: optionalUsdPriceSchema,
+})
+
+export type Transfer = z.infer<typeof transferSchema>
+
+export const travelAssistanceSchema = z
+  .object({
+    enabled: z.boolean(),
+    description: z.string().optional(),
+    priceUsd: optionalUsdPriceSchema,
+  })
+  .superRefine((assistance, ctx) => {
+    if (assistance.enabled && !assistance.description?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Indique la descripción de la asistencia al viajero',
+        path: ['description'],
+      })
+    }
+  })
+
+export type TravelAssistance = z.infer<typeof travelAssistanceSchema>
+
 const budgetBaseSchema = z.object({
   destination: z.string().min(1, 'Indique el destino'),
   dateFrom: z.date({ error: 'Seleccione la fecha de inicio' }).optional(),
@@ -97,6 +132,10 @@ const budgetBaseSchema = z.object({
     .max(99, 'Máximo 99 pasajeros'),
   flights: z.array(flightSchema),
   hotels: z.array(hotelSchema),
+  excursions: z.array(excursionSchema),
+  transfers: z.array(transferSchema),
+  travelAssistance: travelAssistanceSchema,
+  showTotalInPdf: z.boolean(),
 })
 
 export const budgetFormSchema = budgetBaseSchema.superRefine((budget, ctx) => {
@@ -165,11 +204,40 @@ export function defaultHotel(): Hotel {
   }
 }
 
+export function defaultExcursion(): Excursion {
+  return {
+    name: '',
+    description: '',
+    priceUsd: undefined,
+  }
+}
+
+export function defaultTransfer(): Transfer {
+  return {
+    from: '',
+    to: '',
+    description: '',
+    priceUsd: undefined,
+  }
+}
+
+export function defaultTravelAssistance(): TravelAssistance {
+  return {
+    enabled: false,
+    description: '',
+    priceUsd: undefined,
+  }
+}
+
 export function defaultBudgetValues(): BudgetFormValues {
   return {
     destination: '',
     passengers: 1,
     flights: [],
     hotels: [],
+    excursions: [],
+    transfers: [],
+    travelAssistance: defaultTravelAssistance(),
+    showTotalInPdf: true,
   }
 }

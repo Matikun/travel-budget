@@ -1,6 +1,6 @@
 # Travel Budget
 
-Build travel quotes and itineraries from a form and export a client-ready PDF. Portfolio-quality SPA: strict TypeScript, tests, lint, and a single `pnpm validate` gate.
+Build travel quotes and itineraries from a form and export a client-ready PDF.
 
 ## What it does
 

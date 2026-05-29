@@ -21,6 +21,7 @@ import {
 
 import { DatePickerField } from './date-picker-field'
 import { FieldErrorMessage } from './field-error'
+import { PriceInput } from './price-input'
 
 const ROOM_TYPE_LABELS: Record<RoomType, string> = {
   standard: 'Estándar',
@@ -213,22 +214,14 @@ function HotelRow({ index, control, errors, register, onRemove }: HotelRowProps)
           <FieldErrorMessage error={errors?.roomType} />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor={`hotels.${index}.priceUsd`}>Precio (USD)</Label>
-          <Input
-            id={`hotels.${index}.priceUsd`}
-            type="number"
-            min={0}
-            step="0.01"
-            placeholder="Opcional"
-            aria-invalid={Boolean(errors?.priceUsd)}
-            {...register(`hotels.${index}.priceUsd`, {
-              setValueAs: (value: string) =>
-                value === '' ? undefined : Number(value),
-            })}
-          />
-          <FieldErrorMessage error={errors?.priceUsd} />
-        </div>
+        <PriceInput
+          id={`hotels.${index}.priceUsd`}
+          error={errors?.priceUsd}
+          {...register(`hotels.${index}.priceUsd`, {
+            setValueAs: (value: string) =>
+              value === '' ? undefined : Number(value),
+          })}
+        />
       </div>
 
       <div className="flex flex-wrap gap-6">

@@ -1,6 +1,6 @@
 # Implementation Plan — Travel Budget PDF
 
-Build travel quotes/itineraries from a form and export a client-ready PDF. The repo is a **portfolio-quality** project: small scope, high engineering bar (tests, lint, typed code, English docs).
+Build travel quotes/itineraries from a form and export a client-ready PDF.
 
 ---
 
@@ -58,22 +58,6 @@ Build travel quotes/itineraries from a form and export a client-ready PDF. The r
 - Prices in **USD**, optional per item.
 - **Estimated total** computed automatically; toggle to show/hide on PDF.
 - Fixed PDF template, professional layout (no brand assets in v1).
-
----
-
-## Portfolio quality bar
-
-What reviewers should see on GitHub:
-
-- [ ] **README (English):** what it does, screenshots/GIF, live URL, scripts table, tech stack.
-- [ ] **`docs/`:** this plan + short `ARCHITECTURE.md` (data flow: form → schema → totals → PDF).
-- [ ] **Strict TypeScript** — types inferred from Zod (`z.infer<typeof budgetSchema>`).
-- [ ] **Unit tests** for pure logic (`totals`, `format`, schema edge cases).
-- [ ] **Component tests** for critical form behavior (add/remove row, validation messages).
-- [ ] **ESLint + Prettier** — consistent with your other projects; no disabled rules without comment.
-- [ ] **`pnpm validate`** passes locally and in CI (GitHub Actions optional but recommended).
-- [ ] **Sensible folder structure** — UI vs domain logic separated (`lib/` not bloated with JSX).
-- [ ] **No `any`**, minimal `eslint-disable`.
 
 ---
 
@@ -150,14 +134,14 @@ What reviewers should see on GitHub:
 **Goal:** Full form per wireframe; total updates in UI.
 
 **Tasks:**
-- [ ] **Excursions / Tickets** (empty by default): name, description, optional price.
-- [ ] **Transfer** (empty by default): from, to, description, optional price.
-- [ ] **Travel assistance** (optional): include checkbox; description + price when enabled.
-- [ ] `calculateTotal()` in `lib/totals.ts` — sum defined positive prices only.
-- [ ] Sticky bar/card: **Total estimado: USD X,XXX.XX** (`en-US` formatting).
-- [ ] Checkbox **“Mostrar total en el PDF”** (default on).
-- [ ] Price inputs: USD prefix/suffix; positive numbers only.
-- [ ] **Tests:** `totals.test.ts` — empty, partial prices, assistance on/off, decimals; `format.test.ts` for currency.
+- [x] **Excursions / Tickets** (empty by default): name, description, optional price.
+- [x] **Transfer** (empty by default): from, to, description, optional price.
+- [x] **Travel assistance** (optional): include checkbox; description + price when enabled.
+- [x] `calculateTotal()` in `lib/totals.ts` — sum defined positive prices only.
+- [x] Sticky bar/card: **Total estimado: USD X,XXX.XX** (`en-US` formatting).
+- [x] Checkbox **“Mostrar total en el PDF”** (default on).
+- [x] Price inputs: USD prefix/suffix; positive numbers only.
+- [x] **Tests:** `totals.test.ts` — empty, partial prices, assistance on/off, decimals; `format.test.ts` for currency.
 
 **Done when:** All sections exist; total updates live; tests cover edge cases.
 
@@ -281,7 +265,7 @@ Recommended solo order: **F0 → F1 → F2 → F3 → F4 → F5 → F6** (do not
 | Data loss | Phase 5 + versioned draft key |
 | Nested `useFieldArray` (layovers) | Spike in Phase 1; tests for schema; keep nesting shallow |
 | Safari / mobile PDF | Test in Phase 6; preview fallback |
-| Portfolio scope creep | Quality bar is about **discipline**, not extra features — resist backlog until MVP ships |
+| Scope creep | Ship MVP first; backlog items stay in Phase 7+ until core flow works |
 
 ---
 
@@ -300,4 +284,4 @@ Recommended solo order: **F0 → F1 → F2 → F3 → F4 → F5 → F6** (do not
 
 ## Immediate next step
 
-**Phase 2:** Add excursions, transfers, travel assistance, live total bar, and `totals` / `format` tests.
+**Phase 3:** PDF template (`BudgetPdf`), font registration, download flow with form validation.

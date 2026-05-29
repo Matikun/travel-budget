@@ -18,9 +18,13 @@ import {
   type BudgetFormValues,
 } from '@/lib/schema'
 
+import { EstimatedTotalBar } from './estimated-total-bar'
+import { ExcursionsSection } from './excursions-section'
 import { FlightsSection } from './flights-section'
 import { HeaderSection } from './header-section'
 import { HotelsSection } from './hotels-section'
+import { TransfersSection } from './transfers-section'
+import { TravelAssistanceSection } from './travel-assistance-section'
 
 export function BudgetForm() {
   const [lastSubmitted, setLastSubmitted] = useState<Budget | null>(null)
@@ -50,7 +54,7 @@ export function BudgetForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-12 sm:p-6"
+      className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-28 sm:p-6"
       noValidate
     >
       <Card>
@@ -75,6 +79,24 @@ export function BudgetForm() {
           <Separator />
           <HotelsSection control={control} errors={errors} register={register} />
           <Separator />
+          <ExcursionsSection
+            control={control}
+            errors={errors}
+            register={register}
+          />
+          <Separator />
+          <TransfersSection
+            control={control}
+            errors={errors}
+            register={register}
+          />
+          <Separator />
+          <TravelAssistanceSection
+            control={control}
+            errors={errors}
+            register={register}
+          />
+          <Separator />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">
               La generación de PDF estará disponible en la Fase 3.
@@ -91,11 +113,14 @@ export function BudgetForm() {
               Presupuesto válido para{' '}
               <strong>{lastSubmitted.destination}</strong> —{' '}
               {lastSubmitted.flights.length} vuelo(s),{' '}
-              {lastSubmitted.hotels.length} hotel(es).
+              {lastSubmitted.hotels.length} hotel(es),{' '}
+              {lastSubmitted.excursions.length} excursión(es),{' '}
+              {lastSubmitted.transfers.length} traslado(s).
             </output>
           ) : null}
         </CardContent>
       </Card>
+      <EstimatedTotalBar control={control} />
     </form>
   )
 }
