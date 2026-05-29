@@ -1,4 +1,4 @@
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import type { Control, FieldErrors, FieldErrorsImpl } from 'react-hook-form'
 import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 
@@ -20,9 +20,12 @@ import {
   type BudgetFormValues,
   type FlightType,
 } from '@/lib/schema'
+import { flightHasData, layoverHasData } from '@/lib/row-has-data'
 
+import { ConfirmRemoveButton } from './confirm-remove-button'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
+import { SectionEmptyState } from './section-empty-state'
 
 const FLIGHT_TYPE_LABELS: Record<FlightType, string> = {
   direct: 'Directo',
@@ -48,10 +51,16 @@ export function FlightsSection({
   })
 
   return (
-    <section className="space-y-4">
+    <section
+      className="space-y-4"
+      aria-labelledby="flights-section-title"
+      role="region"
+    >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="text-lg font-semibold">Vuelos</h2>
+          <h2 id="flights-section-title" className="text-lg font-semibold">
+            Vuelos
+          </h2>
           <p className="text-sm text-muted-foreground">
             Opcional — agregue vuelos si corresponde.
           </p>
@@ -68,9 +77,7 @@ export function FlightsSection({
       </div>
 
       {fields.length === 0 ? (
-        <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
-          Sin vuelos cargados.
-        </p>
+        <SectionEmptyState message="Sin vuelos — agregar si corresponde." />
       ) : (
         <div className="space-y-6">
           {fields.map((field, index) => (
@@ -121,21 +128,21 @@ function FlightRow({
     control,
     name: `flights.${index}.type`,
   })
+  const flightValues = useWatch({
+    control,
+    name: `flights.${index}`,
+  })
+  const itemLabel = `vuelo ${index + 1}`
 
   return (
     <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-medium">Vuelo {index + 1}</h3>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onRemove}
-          className="text-destructive hover:text-destructive"
-        >
-          <Trash2 className="mr-1 size-4" />
-          Quitar
-        </Button>
+        <ConfirmRemoveButton
+          itemLabel={itemLabel}
+          hasData={flightValues ? flightHasData(flightValues) : false}
+          onConfirm={onRemove}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -246,7 +253,9 @@ function FlightRow({
             />
           ) : (
             <div className="space-y-3">
-              {layoversArray.fields.map((layover, layoverIndex) => (
+              {layoversArray.fields.map((layover, layoverIndex) => {
+                const layoverValues = flightValues?.layovers?.[layoverIndex]
+                return (
                 <div
                   key={layover.id}
                   className="grid gap-3 rounded-md border bg-background p-3 sm:grid-cols-[1fr_1fr_auto]"
@@ -292,19 +301,18 @@ function FlightRow({
                     />
                   </div>
                   <div className="flex items-end">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => layoversArray.remove(layoverIndex)}
+                    <ConfirmRemoveButton
+                      itemLabel={`escala ${layoverIndex + 1} del ${itemLabel}`}
+                      hasData={
+                        layoverValues ? layoverHasData(layoverValues) : false
+                      }
+                      onConfirm={() => layoversArray.remove(layoverIndex)}
                       disabled={layoversArray.fields.length <= 1}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                      iconOnly
+                    />
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           )}
         </div>

@@ -22,9 +22,15 @@ export function HeaderSection({
   register,
 }: HeaderSectionProps) {
   return (
-    <section className="space-y-4">
+    <section
+      className="space-y-4"
+      aria-labelledby="header-section-title"
+      role="region"
+    >
       <div>
-        <h2 className="text-lg font-semibold">Datos del viaje</h2>
+        <h2 id="header-section-title" className="text-lg font-semibold">
+          Datos del viaje
+        </h2>
         <p className="text-sm text-muted-foreground">
           Información general del presupuesto.
         </p>

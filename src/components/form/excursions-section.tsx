@@ -1,15 +1,18 @@
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import type { Control, FieldErrors, FieldErrorsImpl } from 'react-hook-form'
-import { useFieldArray } from 'react-hook-form'
+import { useFieldArray, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { defaultExcursion, type BudgetFormValues } from '@/lib/schema'
+import { excursionHasData } from '@/lib/row-has-data'
 
+import { ConfirmRemoveButton } from './confirm-remove-button'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
+import { SectionEmptyState } from './section-empty-state'
 
 type ExcursionsSectionProps = {
   control: Control<BudgetFormValues>
@@ -30,10 +33,16 @@ export function ExcursionsSection({
   })
 
   return (
-    <section className="space-y-4">
+    <section
+      className="space-y-4"
+      aria-labelledby="excursions-section-title"
+      role="region"
+    >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="text-lg font-semibold">Excursiones / Tickets</h2>
+          <h2 id="excursions-section-title" className="text-lg font-semibold">
+            Excursiones / Tickets
+          </h2>
           <p className="text-sm text-muted-foreground">
             Opcional — actividades y entradas.
           </p>
@@ -50,15 +59,14 @@ export function ExcursionsSection({
       </div>
 
       {fields.length === 0 ? (
-        <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
-          Sin excursiones cargadas.
-        </p>
+        <SectionEmptyState message="Sin excursiones — agregar si corresponde." />
       ) : (
         <div className="space-y-6">
           {fields.map((field, index) => (
             <ExcursionRow
               key={field.id}
               index={index}
+              control={control}
               errors={errors.excursions?.[index]}
               register={register}
               onRemove={() => remove(index)}
@@ -78,26 +86,33 @@ type ExcursionFieldErrors = FieldErrorsImpl<{
 
 type ExcursionRowProps = {
   index: number
+  control: Control<BudgetFormValues>
   errors?: ExcursionFieldErrors
   register: ExcursionsSectionProps['register']
   onRemove: () => void
 }
 
-function ExcursionRow({ index, errors, register, onRemove }: ExcursionRowProps) {
+function ExcursionRow({
+  index,
+  control,
+  errors,
+  register,
+  onRemove,
+}: ExcursionRowProps) {
+  const excursionValues = useWatch({
+    control,
+    name: `excursions.${index}`,
+  })
+
   return (
     <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-medium">Excursión {index + 1}</h3>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onRemove}
-          className="text-destructive hover:text-destructive"
-        >
-          <Trash2 className="mr-1 size-4" />
-          Quitar
-        </Button>
+        <ConfirmRemoveButton
+          itemLabel={`excursión ${index + 1}`}
+          hasData={excursionValues ? excursionHasData(excursionValues) : false}
+          onConfirm={onRemove}
+        />
       </div>
 
       <div className="space-y-2">

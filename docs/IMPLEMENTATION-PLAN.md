@@ -177,13 +177,13 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 **Goal:** Preview before download; daily-use polish.
 
 **Tasks:**
-- [ ] Embedded preview (`PDFViewer` or blob in modal/iframe).
-- [ ] Clear actions: Preview | Download.
-- [ ] Confirm before removing a row with data.
-- [ ] Empty states (Spanish): e.g. “Sin vuelos — agregar si corresponde”.
-- [ ] Accessibility from the start: labels, focus order, contrast.
-- [ ] Mobile pass on form + preview fallback (download-only if preview heavy).
-- [ ] **Tests:** one RTL test for a small form section (e.g. add flight row) if stable.
+- [x] Embedded preview (`PDFViewer` or blob in modal/iframe).
+- [x] Clear actions: Preview | Download.
+- [x] Confirm before removing a row with data.
+- [x] Empty states (Spanish): e.g. “Sin vuelos — agregar si corresponde”.
+- [x] Accessibility from the start: labels, focus order, contrast.
+- [x] Mobile pass on form + preview fallback (download-only if preview heavy).
+- [x] **Tests:** one RTL test for a small form section (e.g. add flight row) if stable.
 
 **Done when:** PDF reviewable on screen without downloading first.
 
@@ -284,4 +284,4 @@ Recommended solo order: **F0 → F1 → F2 → F3 → F4 → F5 → F6** (do not
 
 ## Immediate next step
 
-**Phase 4:** Embedded PDF preview, UX polish (empty states, confirm on remove, accessibility).
+**Phase 5:** Local drafts (persist form to `localStorage`, restore on load).

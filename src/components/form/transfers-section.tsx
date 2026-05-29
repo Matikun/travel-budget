@@ -1,15 +1,18 @@
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import type { Control, FieldErrors, FieldErrorsImpl } from 'react-hook-form'
-import { useFieldArray } from 'react-hook-form'
+import { useFieldArray, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { defaultTransfer, type BudgetFormValues } from '@/lib/schema'
+import { transferHasData } from '@/lib/row-has-data'
 
+import { ConfirmRemoveButton } from './confirm-remove-button'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
+import { SectionEmptyState } from './section-empty-state'
 
 type TransfersSectionProps = {
   control: Control<BudgetFormValues>
@@ -30,10 +33,16 @@ export function TransfersSection({
   })
 
   return (
-    <section className="space-y-4">
+    <section
+      className="space-y-4"
+      aria-labelledby="transfers-section-title"
+      role="region"
+    >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="text-lg font-semibold">Traslados</h2>
+          <h2 id="transfers-section-title" className="text-lg font-semibold">
+            Traslados
+          </h2>
           <p className="text-sm text-muted-foreground">
             Opcional — traslados entre puntos del viaje.
           </p>
@@ -50,15 +59,14 @@ export function TransfersSection({
       </div>
 
       {fields.length === 0 ? (
-        <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
-          Sin traslados cargados.
-        </p>
+        <SectionEmptyState message="Sin traslados — agregar si corresponde." />
       ) : (
         <div className="space-y-6">
           {fields.map((field, index) => (
             <TransferRow
               key={field.id}
               index={index}
+              control={control}
               errors={errors.transfers?.[index]}
               register={register}
               onRemove={() => remove(index)}
@@ -79,26 +87,33 @@ type TransferFieldErrors = FieldErrorsImpl<{
 
 type TransferRowProps = {
   index: number
+  control: Control<BudgetFormValues>
   errors?: TransferFieldErrors
   register: TransfersSectionProps['register']
   onRemove: () => void
 }
 
-function TransferRow({ index, errors, register, onRemove }: TransferRowProps) {
+function TransferRow({
+  index,
+  control,
+  errors,
+  register,
+  onRemove,
+}: TransferRowProps) {
+  const transferValues = useWatch({
+    control,
+    name: `transfers.${index}`,
+  })
+
   return (
     <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-medium">Traslado {index + 1}</h3>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onRemove}
-          className="text-destructive hover:text-destructive"
-        >
-          <Trash2 className="mr-1 size-4" />
-          Quitar
-        </Button>
+        <ConfirmRemoveButton
+          itemLabel={`traslado ${index + 1}`}
+          hasData={transferValues ? transferHasData(transferValues) : false}
+          onConfirm={onRemove}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

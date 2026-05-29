@@ -25,9 +25,18 @@ export function TravelAssistanceSection({
   const assistanceErrors = errors.travelAssistance
 
   return (
-    <section className="space-y-4">
+    <section
+      className="space-y-4"
+      aria-labelledby="travel-assistance-section-title"
+      role="region"
+    >
       <div>
-        <h2 className="text-lg font-semibold">Asistencia al viajero</h2>
+        <h2
+          id="travel-assistance-section-title"
+          className="text-lg font-semibold"
+        >
+          Asistencia al viajero
+        </h2>
         <p className="text-sm text-muted-foreground">
           Opcional — cobertura o seguro de viaje.
         </p>
@@ -76,8 +85,8 @@ export function TravelAssistanceSection({
               />
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              Marque la casilla para agregar asistencia al presupuesto.
+            <p className="text-sm text-muted-foreground" role="status">
+              Sin asistencia — marque la casilla para agregar si corresponde.
             </p>
           )
         }

@@ -1,6 +1,6 @@
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import type { Control, FieldErrors, FieldErrorsImpl } from 'react-hook-form'
-import { Controller, useFieldArray } from 'react-hook-form'
+import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -18,10 +18,13 @@ import {
   type BudgetFormValues,
   type RoomType,
 } from '@/lib/schema'
+import { hotelHasData } from '@/lib/row-has-data'
 
+import { ConfirmRemoveButton } from './confirm-remove-button'
 import { DatePickerField } from './date-picker-field'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
+import { SectionEmptyState } from './section-empty-state'
 
 const ROOM_TYPE_LABELS: Record<RoomType, string> = {
   standard: 'Estándar',
@@ -49,10 +52,16 @@ export function HotelsSection({
   })
 
   return (
-    <section className="space-y-4">
+    <section
+      className="space-y-4"
+      aria-labelledby="hotels-section-title"
+      role="region"
+    >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="text-lg font-semibold">Hoteles</h2>
+          <h2 id="hotels-section-title" className="text-lg font-semibold">
+            Hoteles
+          </h2>
           <p className="text-sm text-muted-foreground">
             Opcional — agregue alojamientos si corresponde.
           </p>
@@ -69,9 +78,7 @@ export function HotelsSection({
       </div>
 
       {fields.length === 0 ? (
-        <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
-          Sin hoteles cargados.
-        </p>
+        <SectionEmptyState message="Sin hoteles — agregar si corresponde." />
       ) : (
         <div className="space-y-6">
           {fields.map((field, index) => (
@@ -110,20 +117,20 @@ type HotelRowProps = {
 }
 
 function HotelRow({ index, control, errors, register, onRemove }: HotelRowProps) {
+  const hotelValues = useWatch({
+    control,
+    name: `hotels.${index}`,
+  })
+
   return (
     <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-medium">Hotel {index + 1}</h3>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onRemove}
-          className="text-destructive hover:text-destructive"
-        >
-          <Trash2 className="mr-1 size-4" />
-          Quitar
-        </Button>
+        <ConfirmRemoveButton
+          itemLabel={`hotel ${index + 1}`}
+          hasData={hotelValues ? hotelHasData(hotelValues) : false}
+          onConfirm={onRemove}
+        />
       </div>
 
       <div className="space-y-2">

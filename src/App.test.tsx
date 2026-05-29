@@ -16,6 +16,7 @@ describe('App', () => {
     ).toBeInTheDocument()
     expect(screen.getByText(/total estimado/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/mostrar total en el pdf/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /vista previa/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /descargar pdf/i })).toBeInTheDocument()
   })
 
@@ -29,7 +30,9 @@ describe('App', () => {
     const flightCard = screen.getByText('Vuelo 1').closest('div.rounded-lg')
     expect(flightCard).not.toBeNull()
     await user.click(
-      within(flightCard as HTMLElement).getByRole('button', { name: /quitar/i }),
+      within(flightCard as HTMLElement).getByRole('button', {
+        name: /quitar vuelo 1/i,
+      }),
     )
     expect(screen.queryByText('Vuelo 1')).not.toBeInTheDocument()
   })
