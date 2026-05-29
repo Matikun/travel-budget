@@ -42,3 +42,16 @@ Manual checks after Phase 3 PDF changes. Run locally with `pnpm dev`, fill the f
 3. Hotel with nights only; hotel with date range only.
 4. All sections filled + total shown.
 5. Prices blank everywhere — no footer total.
+
+## Logo / branding
+
+- [ ] No logo → header identical to pre-feature PDF
+- [ ] PNG with transparency renders correctly
+- [ ] JPEG logo renders correctly
+- [ ] Wide logo respects `maxWidth`; tall logo respects `height: 48`
+- [ ] Toggle off → no logo in PDF even if uploaded
+- [ ] Remove logo → preview/download without logo
+- [ ] Logo persists after page reload
+- [ ] New budget keeps stored logo; toggle resets per form default logic
+- [ ] PDF preview (dialog) and download match
+- [ ] Chrome and Edge (blob iframe)

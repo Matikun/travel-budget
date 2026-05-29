@@ -18,6 +18,7 @@ type PdfPreviewDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   budget: Budget | null
+  logoDataUrl?: string
   onDownload: () => Promise<void>
   isDownloading: boolean
 }
@@ -26,6 +27,7 @@ export function PdfPreviewDialog({
   open,
   onOpenChange,
   budget,
+  logoDataUrl,
   onDownload,
   isDownloading,
 }: PdfPreviewDialogProps) {
@@ -59,7 +61,7 @@ export function PdfPreviewDialog({
       setPreviewUrl(null)
 
       try {
-        const blob = await generateBudgetPdfBlob(budget)
+        const blob = await generateBudgetPdfBlob(budget, logoDataUrl)
         if (cancelled) {
           return
         }
@@ -84,7 +86,7 @@ export function PdfPreviewDialog({
         URL.revokeObjectURL(objectUrl)
       }
     }
-  }, [open, budget])
+  }, [open, budget, logoDataUrl])
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>

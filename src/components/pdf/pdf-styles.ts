@@ -40,6 +40,19 @@ export const pdfStyles = StyleSheet.create({
     color: pdfColors.textSecondary,
     lineHeight: 1.6,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 16,
+  },
+  logo: {
+    height: 48,
+    maxWidth: 120,
+    objectFit: 'contain' as const,
+  },
+  headerText: {
+    flex: 1,
+  },
   metaRow: {
     flexDirection: 'row',
     gap: 24,

@@ -75,3 +75,13 @@ export function toValidatedBudget(data: BudgetFormValues): Budget | null {
     dateTo: data.dateTo,
   }
 }
+
+export function resolvePdfLogo(
+  includeLogoInPdf: boolean,
+  logoDataUrl: string | null | undefined,
+): string | undefined {
+  if (!includeLogoInPdf || !logoDataUrl) {
+    return undefined
+  }
+  return logoDataUrl
+}

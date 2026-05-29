@@ -1,5 +1,6 @@
 import {
   Document,
+  Image,
   Page,
   Text,
   View,
@@ -28,6 +29,7 @@ const ROOM_TYPE_LABELS: Record<RoomType, string> = {
 
 type BudgetPdfProps = {
   budget: Budget
+  logoDataUrl?: string
 }
 
 function PriceColumn({ priceUsd }: { priceUsd?: number }) {
@@ -87,6 +89,17 @@ function formatHotelStay(hotel: Hotel): string {
   return parts.join(' · ')
 }
 
+function PdfHeaderTitle() {
+  return (
+    <>
+      <Text style={pdfStyles.title}>Presupuesto de viaje</Text>
+      <Text style={pdfStyles.subtitle}>
+        Cotización generada para operadores
+      </Text>
+    </>
+  )
+}
+
 function HotelItem({ hotel, index }: { hotel: Hotel; index: number }) {
   const amenities: string[] = []
 
@@ -118,7 +131,7 @@ function HotelItem({ hotel, index }: { hotel: Hotel; index: number }) {
   )
 }
 
-export function BudgetPdf({ budget }: BudgetPdfProps) {
+export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
   const totalUsd = calculateBudgetTotal(budget)
   const showTotal = shouldShowPdfTotal(budget, totalUsd)
 
@@ -126,10 +139,16 @@ export function BudgetPdf({ budget }: BudgetPdfProps) {
     <Document title={`Presupuesto — ${budget.destination}`}>
       <Page size="A4" style={pdfStyles.page}>
         <View style={pdfStyles.header}>
-          <Text style={pdfStyles.title}>Presupuesto de viaje</Text>
-          <Text style={pdfStyles.subtitle}>
-            Cotización generada para operadores
-          </Text>
+          {logoDataUrl ? (
+            <View style={pdfStyles.headerRow}>
+              <Image src={logoDataUrl} style={pdfStyles.logo} />
+              <View style={pdfStyles.headerText}>
+                <PdfHeaderTitle />
+              </View>
+            </View>
+          ) : (
+            <PdfHeaderTitle />
+          )}
         </View>
 
         <View style={pdfStyles.metaRow}>

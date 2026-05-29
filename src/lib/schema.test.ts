@@ -22,6 +22,7 @@ const emptySections = {
   transfers: [] as const,
   travelAssistance: { enabled: false as const },
   showTotalInPdf: true,
+  includeLogoInPdf: false,
 }
 
 describe('budgetSchema', () => {
@@ -262,6 +263,36 @@ describe('budgetSchema', () => {
     })
     expect(result.success).toBe(false)
   })
+
+  it('defaults includeLogoInPdf to false when omitted', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      excursions: [] as const,
+      transfers: [] as const,
+      travelAssistance: { enabled: false as const },
+      showTotalInPdf: true,
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.includeLogoInPdf).toBe(false)
+    }
+  })
+
+  it('accepts includeLogoInPdf true', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      ...emptySections,
+      includeLogoInPdf: true,
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.includeLogoInPdf).toBe(true)
+    }
+  })
 })
 
 describe('defaultBudgetValues', () => {
@@ -273,6 +304,7 @@ describe('defaultBudgetValues', () => {
     expect(defaults.transfers).toEqual([])
     expect(defaults.travelAssistance.enabled).toBe(false)
     expect(defaults.showTotalInPdf).toBe(true)
+    expect(defaults.includeLogoInPdf).toBe(false)
     expect(defaults.passengers).toBe(1)
   })
 

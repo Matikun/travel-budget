@@ -18,7 +18,7 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 | Quality | ESLint + Prettier + `pnpm validate` |
 | Deploy | Vercel or Netlify (static) |
 
-**Out of scope v1:** Next.js, backend, database, auth, final brand/logo.
+**Out of scope v1:** Next.js, backend, database, auth. Agency logo on PDF is in scope — see [`LOGO-PDF-IMPLEMENTATION-PLAN.md`](./LOGO-PDF-IMPLEMENTATION-PLAN.md).
 
 ---
 
@@ -57,7 +57,7 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 - **Dynamic arrays:** all sections start empty; add/remove freely down to zero items.
 - Prices in **USD**, optional per item.
 - **Estimated total** computed automatically; toggle to show/hide on PDF.
-- Fixed PDF template, professional layout (no brand assets in v1).
+- Fixed PDF template, professional layout; optional agency logo (header-left) — see [`LOGO-PDF-IMPLEMENTATION-PLAN.md`](./LOGO-PDF-IMPLEMENTATION-PLAN.md).
 
 ---
 
@@ -227,7 +227,7 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 
 | Item | Description |
 |------|-------------|
-| Brand | Logo, agency name, colors in PDF and form |
+| Brand | Agency name, colors in PDF and form (logo on PDF done — see logo plan) |
 | Templates | PDF variants (with/without prices, itinerary-only) |
 | Duplicate quote | Clone data for another client |
 | History | Needs backend + auth |

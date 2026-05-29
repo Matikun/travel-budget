@@ -88,8 +88,41 @@ describe('draft serialization', () => {
         transfers: [],
         travelAssistance: { enabled: false, description: '' },
         showTotalInPdf: true,
+        includeLogoInPdf: false,
       }),
     ).toBe(false)
+  })
+
+  it('draftHasContent is true when includeLogoInPdf is on', () => {
+    expect(
+      draftHasContent({
+        ...sample,
+        destination: '',
+        dateFrom: undefined,
+        dateTo: undefined,
+        passengers: 1,
+        flights: [],
+        hotels: [],
+        excursions: [],
+        transfers: [],
+        travelAssistance: { enabled: false, description: '' },
+        showTotalInPdf: true,
+        includeLogoInPdf: true,
+      }),
+    ).toBe(true)
+  })
+
+  it('parseDraftJson applies default includeLogoInPdf for old drafts', () => {
+    const envelope = createDraftEnvelope(sample)
+    const values = { ...envelope.values }
+    delete (values as { includeLogoInPdf?: boolean }).includeLogoInPdf
+    const raw = JSON.stringify({ ...envelope, values })
+    const result = parseDraftJson(raw)
+
+    expect(result.status).toBe('ok')
+    if (result.status === 'ok') {
+      expect(result.values.includeLogoInPdf).toBe(false)
+    }
   })
 })
 
@@ -153,6 +186,7 @@ describe('draft localStorage', () => {
         transfers: [],
         travelAssistance: { enabled: false, description: '' },
         showTotalInPdf: true,
+        includeLogoInPdf: false,
       },
       mockStorage,
     )

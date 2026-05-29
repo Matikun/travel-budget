@@ -7,10 +7,12 @@ import {
   budgetHasTransfers,
   budgetHasTravelAssistance,
   buildQuoteFilename,
+  resolvePdfLogo,
   shouldShowPdfTotal,
   slugifyDestination,
 } from './pdf-helpers'
 
+const sampleLogoDataUrl = 'data:image/png;base64,abc'
 describe('slugifyDestination', () => {
   it('lowercases and replaces spaces', () => {
     expect(slugifyDestination('Bariloche 2026')).toBe('bariloche-2026')
@@ -104,5 +106,19 @@ describe('shouldShowPdfTotal', () => {
     expect(shouldShowPdfTotal({ showTotalInPdf: true }, 100)).toBe(true)
     expect(shouldShowPdfTotal({ showTotalInPdf: false }, 100)).toBe(false)
     expect(shouldShowPdfTotal({ showTotalInPdf: true }, 0)).toBe(false)
+  })
+})
+
+describe('resolvePdfLogo', () => {
+  it('returns undefined when toggle is off', () => {
+    expect(resolvePdfLogo(false, sampleLogoDataUrl)).toBeUndefined()
+  })
+
+  it('returns undefined when no logo is stored', () => {
+    expect(resolvePdfLogo(true, null)).toBeUndefined()
+  })
+
+  it('returns dataUrl when toggle is on and logo exists', () => {
+    expect(resolvePdfLogo(true, sampleLogoDataUrl)).toBe(sampleLogoDataUrl)
   })
 })

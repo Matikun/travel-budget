@@ -42,7 +42,7 @@ If PDF generation fails inside Cursor’s embedded browser preview, open the app
 | `src/components/ui/` | shadcn/ui primitives |
 | `src/components/form/` | Form sections (header, flights, hotels, …) |
 | `src/components/pdf/` | PDF template |
-| `src/lib/` | Domain logic: schema, totals, format (no JSX) |
+| `src/lib/` | Domain logic: schema, totals, format, agency logo storage (no JSX) |
 | `docs/` | Plans and architecture |
 
 ## Quality gates
@@ -52,4 +52,4 @@ If PDF generation fails inside Cursor’s embedded browser preview, open the app
 
 ## Out of scope (v1)
 
-Backend, database, auth, branding assets, multi-currency.
+Backend, database, auth, multi-currency. **Branding:** optional agency logo on PDF is in scope (global storage in `src/lib/agency-logo.ts`, toggle `includeLogoInPdf` in draft v1). Full brand kit (agency name, colors in form/PDF) remains v2.

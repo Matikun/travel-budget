@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch, type Resolver } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -15,7 +15,9 @@ import {
   readStoredDraft,
   writeStoredDraft,
 } from '@/lib/draft'
-import { toValidatedBudget } from '@/lib/pdf-helpers'
+import { readStoredAgencyLogo, type AgencyLogo } from '@/lib/agency-logo'
+import { downloadBudgetPdf } from '@/lib/download-pdf'
+import { resolvePdfLogo, toValidatedBudget } from '@/lib/pdf-helpers'
 import { formatPdfError, logPdfError, type PdfErrorInfo } from '@/lib/pdf-error'
 import {
   budgetFormSchema,
@@ -33,6 +35,7 @@ import { ExcursionsSection } from './excursions-section'
 import { FlightsSection } from './flights-section'
 import { HeaderSection } from './header-section'
 import { HotelsSection } from './hotels-section'
+import { PdfBrandingSection } from './pdf-branding-section'
 import { PdfPreviewDialog } from './pdf-preview-dialog'
 import { TransfersSection } from './transfers-section'
 import { TravelAssistanceSection } from './travel-assistance-section'
@@ -40,12 +43,13 @@ import { TravelAssistanceSection } from './travel-assistance-section'
 const DRAFT_DEBOUNCE_MS = 500
 
 type BudgetPdfResult =
-  | { ok: true; budget: Budget }
+  | { ok: true; budget: Budget; logoDataUrl?: string }
   | { ok: false; error: PdfErrorInfo }
 
 async function resolveBudgetForPdf(
   trigger: () => Promise<boolean>,
   getValues: () => BudgetFormValues,
+  agencyLogo: AgencyLogo | null,
 ): Promise<BudgetPdfResult> {
   const valid = await trigger()
 
@@ -70,7 +74,14 @@ async function resolveBudgetForPdf(
     }
   }
 
-  return { ok: true, budget }
+  return {
+    ok: true,
+    budget,
+    logoDataUrl: resolvePdfLogo(
+      getValues().includeLogoInPdf,
+      agencyLogo?.dataUrl,
+    ),
+  }
 }
 
 function downloadJsonBackup(filename: string, content: string) {
@@ -83,15 +94,39 @@ function downloadJsonBackup(filename: string, content: string) {
   URL.revokeObjectURL(url)
 }
 
+function resolveMountDraftState() {
+  const result = readStoredDraft()
+  const incompatibleOpen =
+    result.status === 'incompatible' || result.status === 'invalid'
+
+  return {
+    incompatibleOpen,
+    restoreOpen: result.status === 'ok',
+    pendingDraft: result.status === 'ok' ? result.values : null,
+    draftSavedAt: result.status === 'ok' ? result.savedAt : null,
+    formDefaults:
+      result.status === 'missing' && import.meta.env.MODE === 'development'
+        ? initialBudgetValues()
+        : defaultBudgetValues(),
+  }
+}
+
 export function BudgetForm() {
+  const [mountDraft] = useState(resolveMountDraftState)
   const [pdfError, setPdfError] = useState<PdfErrorInfo | null>(null)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewBudget, setPreviewBudget] = useState<Budget | null>(null)
-  const [restoreOpen, setRestoreOpen] = useState(false)
-  const [incompatibleOpen, setIncompatibleOpen] = useState(false)
-  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null)
-  const [pendingDraft, setPendingDraft] = useState<BudgetFormValues | null>(null)
+  const [agencyLogo, setAgencyLogo] = useState<AgencyLogo | null>(() =>
+    readStoredAgencyLogo(),
+  )
+  const [restoreOpen, setRestoreOpen] = useState(mountDraft.restoreOpen)
+  const [incompatibleOpen, setIncompatibleOpen] = useState(
+    mountDraft.incompatibleOpen,
+  )
+  const [pendingDraft, setPendingDraft] = useState<BudgetFormValues | null>(
+    mountDraft.pendingDraft,
+  )
   const [importError, setImportError] = useState<string | null>(null)
   const skipPersistRef = useRef(false)
 
@@ -102,37 +137,20 @@ export function BudgetForm() {
     trigger,
     getValues,
     reset,
-    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<BudgetFormValues>({
-    resolver: zodResolver(budgetFormSchema),
-    defaultValues: defaultBudgetValues(),
+    resolver: zodResolver(budgetFormSchema) as Resolver<BudgetFormValues>,
+    defaultValues: mountDraft.formDefaults,
     mode: 'onSubmit',
   })
 
-  const watchedValues = watch()
+  const watchedValues = useWatch({ control })
+  const includeLogoInPdf = useWatch({ control, name: 'includeLogoInPdf' })
 
-  useEffect(() => {
-    const result = readStoredDraft()
-
-    if (result.status === 'incompatible' || result.status === 'invalid') {
-      setIncompatibleOpen(true)
-      return
-    }
-
-    if (result.status === 'ok') {
-      setPendingDraft(result.values)
-      setDraftSavedAt(result.savedAt)
-      setRestoreOpen(true)
-      return
-    }
-
-    if (import.meta.env.MODE === 'development') {
-      skipPersistRef.current = true
-      reset(initialBudgetValues())
-      skipPersistRef.current = false
-    }
-  }, [reset])
+  const previewLogoDataUrl = previewBudget
+    ? resolvePdfLogo(includeLogoInPdf, agencyLogo?.dataUrl)
+    : undefined
 
   useEffect(() => {
     if (skipPersistRef.current || restoreOpen || incompatibleOpen) {
@@ -140,11 +158,11 @@ export function BudgetForm() {
     }
 
     const timer = window.setTimeout(() => {
-      writeStoredDraft(watchedValues)
+      writeStoredDraft(getValues())
     }, DRAFT_DEBOUNCE_MS)
 
     return () => window.clearTimeout(timer)
-  }, [watchedValues, restoreOpen, incompatibleOpen])
+  }, [watchedValues, restoreOpen, incompatibleOpen, getValues])
 
   const applyFormValues = (values: BudgetFormValues) => {
     skipPersistRef.current = true
@@ -233,25 +251,20 @@ export function BudgetForm() {
     applyFormValues(result.values)
   }
 
-  const handleDownloadPdf = async (budget?: Budget) => {
+  const handleDownloadPdf = async () => {
     setPdfError(null)
 
-    let resolvedBudget = budget
-    if (!resolvedBudget) {
-      const result = await resolveBudgetForPdf(trigger, getValues)
-      if (!result.ok) {
-        setPdfError(result.error)
-        return
-      }
-      resolvedBudget = result.budget
+    const result = await resolveBudgetForPdf(trigger, getValues, agencyLogo)
+    if (!result.ok) {
+      setPdfError(result.error)
+      return
     }
 
     try {
       setIsGeneratingPdf(true)
-      const { downloadBudgetPdf } = await import('@/lib/download-pdf')
-      await downloadBudgetPdf(resolvedBudget)
+      await downloadBudgetPdf(result.budget, result.logoDataUrl)
     } catch (error) {
-      logPdfError(error, resolvedBudget)
+      logPdfError(error, result.budget)
       setPdfError(formatPdfError(error))
     } finally {
       setIsGeneratingPdf(false)
@@ -260,7 +273,7 @@ export function BudgetForm() {
 
   const handlePreviewPdf = async () => {
     setPdfError(null)
-    const result = await resolveBudgetForPdf(trigger, getValues)
+    const result = await resolveBudgetForPdf(trigger, getValues, agencyLogo)
 
     if (!result.ok) {
       setPdfError(result.error)
@@ -281,7 +294,7 @@ export function BudgetForm() {
       >
         <Card className="gap-0 overflow-hidden border-border/80 py-0 shadow-md dark:border-border dark:shadow-lg dark:shadow-black/25">
           <FormPageHeader
-            destination={watchedValues.destination ?? ''}
+            destination={watchedValues?.destination ?? ''}
             toolbar={
               <DraftToolbar
                 onNewBudget={handleNewBudget}
@@ -335,6 +348,13 @@ export function BudgetForm() {
               register={register}
             />
             <Separator />
+            <PdfBrandingSection
+              control={control}
+              agencyLogo={agencyLogo}
+              onAgencyLogoChange={setAgencyLogo}
+              setValue={setValue}
+            />
+            <Separator />
             <div
               className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end"
               role="group"
@@ -380,7 +400,7 @@ export function BudgetForm() {
 
       <DraftRestoreDialog
         open={restoreOpen}
-        savedAt={draftSavedAt}
+        savedAt={mountDraft.draftSavedAt}
         onRestore={handleRestoreDraft}
         onDiscard={handleDiscardDraft}
       />
@@ -394,7 +414,8 @@ export function BudgetForm() {
         open={previewOpen}
         onOpenChange={setPreviewOpen}
         budget={previewBudget}
-        onDownload={() => handleDownloadPdf(previewBudget ?? undefined)}
+        logoDataUrl={previewLogoDataUrl}
+        onDownload={() => handleDownloadPdf()}
         isDownloading={isGeneratingPdf}
       />
     </>

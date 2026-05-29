@@ -136,6 +136,7 @@ const budgetBaseSchema = z.object({
   transfers: z.array(transferSchema),
   travelAssistance: travelAssistanceSchema,
   showTotalInPdf: z.boolean(),
+  includeLogoInPdf: z.boolean().default(false),
 })
 
 export const budgetFormSchema = budgetBaseSchema.superRefine((budget, ctx) => {
@@ -170,7 +171,7 @@ export const budgetFormSchema = budgetBaseSchema.superRefine((budget, ctx) => {
 /** Alias used in tests and for full parse checks. */
 export const budgetSchema = budgetFormSchema
 
-export type BudgetFormValues = z.infer<typeof budgetFormSchema>
+export type BudgetFormValues = z.output<typeof budgetFormSchema>
 export type Budget = Omit<BudgetFormValues, 'dateFrom' | 'dateTo'> & {
   dateFrom: Date
   dateTo: Date
@@ -239,6 +240,7 @@ export function defaultBudgetValues(): BudgetFormValues {
     transfers: [],
     travelAssistance: defaultTravelAssistance(),
     showTotalInPdf: true,
+    includeLogoInPdf: false,
   }
 }
 
@@ -320,6 +322,7 @@ export function sampleBudgetValues(): BudgetFormValues {
       priceUsd: 42,
     },
     showTotalInPdf: true,
+    includeLogoInPdf: false,
   }
 }
 
