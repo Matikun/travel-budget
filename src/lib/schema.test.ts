@@ -22,6 +22,7 @@ const emptySections = {
   transfers: [] as const,
   travelAssistance: { enabled: false as const },
   showTotalInPdf: true,
+  hideIndividualPricesInPdf: false,
   includeLogoInPdf: false,
 }
 
@@ -277,6 +278,21 @@ describe('budgetSchema', () => {
     expect(result.success).toBe(true)
     if (result.success) {
       expect(result.data.includeLogoInPdf).toBe(false)
+      expect(result.data.hideIndividualPricesInPdf).toBe(false)
+    }
+  })
+
+  it('accepts hideIndividualPricesInPdf true', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      ...emptySections,
+      hideIndividualPricesInPdf: true,
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.hideIndividualPricesInPdf).toBe(true)
     }
   })
 
@@ -304,6 +320,7 @@ describe('defaultBudgetValues', () => {
     expect(defaults.transfers).toEqual([])
     expect(defaults.travelAssistance.enabled).toBe(false)
     expect(defaults.showTotalInPdf).toBe(true)
+    expect(defaults.hideIndividualPricesInPdf).toBe(false)
     expect(defaults.includeLogoInPdf).toBe(false)
     expect(defaults.passengers).toBe(1)
   })

@@ -13,6 +13,7 @@ import {
   budgetHasHotels,
   budgetHasTransfers,
   budgetHasTravelAssistance,
+  shouldShowIndividualPricesInPdf,
   shouldShowPdfTotal,
 } from '@/lib/pdf-helpers'
 import type { Budget, Flight, Hotel, RoomType } from '@/lib/schema'
@@ -32,15 +33,29 @@ type BudgetPdfProps = {
   logoDataUrl?: string
 }
 
-function PriceColumn({ priceUsd }: { priceUsd?: number }) {
-  if (priceUsd === undefined || priceUsd === null) {
+function PriceColumn({
+  priceUsd,
+  show,
+}: {
+  priceUsd?: number
+  show: boolean
+}) {
+  if (!show || priceUsd === undefined || priceUsd === null) {
     return null
   }
 
   return <Text style={pdfStyles.itemPrice}>{formatUsd(priceUsd)}</Text>
 }
 
-function FlightItem({ flight, index }: { flight: Flight; index: number }) {
+function FlightItem({
+  flight,
+  index,
+  showItemPrices,
+}: {
+  flight: Flight
+  index: number
+  showItemPrices: boolean
+}) {
   return (
     <View style={pdfStyles.item} wrap={false}>
       <View style={pdfStyles.itemRow}>
@@ -65,7 +80,7 @@ function FlightItem({ flight, index }: { flight: Flight; index: number }) {
             <Text style={pdfStyles.itemDetail}>{flight.description}</Text>
           ) : null}
         </View>
-        <PriceColumn priceUsd={flight.priceUsd} />
+        <PriceColumn priceUsd={flight.priceUsd} show={showItemPrices} />
       </View>
     </View>
   )
@@ -100,7 +115,15 @@ function PdfHeaderTitle() {
   )
 }
 
-function HotelItem({ hotel, index }: { hotel: Hotel; index: number }) {
+function HotelItem({
+  hotel,
+  index,
+  showItemPrices,
+}: {
+  hotel: Hotel
+  index: number
+  showItemPrices: boolean
+}) {
   const amenities: string[] = []
 
   if (hotel.breakfast) {
@@ -125,7 +148,7 @@ function HotelItem({ hotel, index }: { hotel: Hotel; index: number }) {
             <Text style={pdfStyles.itemDetail}>{amenities.join(' · ')}</Text>
           ) : null}
         </View>
-        <PriceColumn priceUsd={hotel.priceUsd} />
+        <PriceColumn priceUsd={hotel.priceUsd} show={showItemPrices} />
       </View>
     </View>
   )
@@ -134,6 +157,7 @@ function HotelItem({ hotel, index }: { hotel: Hotel; index: number }) {
 export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
   const totalUsd = calculateBudgetTotal(budget)
   const showTotal = shouldShowPdfTotal(budget, totalUsd)
+  const showItemPrices = shouldShowIndividualPricesInPdf(budget)
 
   return (
     <Document title={`Presupuesto — ${budget.destination}`}>
@@ -172,7 +196,12 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
           <View style={pdfStyles.section}>
             <Text style={pdfStyles.sectionTitle}>Vuelos</Text>
             {budget.flights.map((flight, index) => (
-              <FlightItem key={index} flight={flight} index={index} />
+              <FlightItem
+                key={index}
+                flight={flight}
+                index={index}
+                showItemPrices={showItemPrices}
+              />
             ))}
           </View>
         ) : null}
@@ -181,7 +210,12 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
           <View style={pdfStyles.section}>
             <Text style={pdfStyles.sectionTitle}>Hoteles</Text>
             {budget.hotels.map((hotel, index) => (
-              <HotelItem key={index} hotel={hotel} index={index} />
+              <HotelItem
+                key={index}
+                hotel={hotel}
+                index={index}
+                showItemPrices={showItemPrices}
+              />
             ))}
           </View>
         ) : null}
@@ -202,7 +236,10 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
                       </Text>
                     ) : null}
                   </View>
-                  <PriceColumn priceUsd={excursion.priceUsd} />
+                  <PriceColumn
+                    priceUsd={excursion.priceUsd}
+                    show={showItemPrices}
+                  />
                 </View>
               </View>
             ))}
@@ -225,7 +262,10 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
                       </Text>
                     ) : null}
                   </View>
-                  <PriceColumn priceUsd={transfer.priceUsd} />
+                  <PriceColumn
+                    priceUsd={transfer.priceUsd}
+                    show={showItemPrices}
+                  />
                 </View>
               </View>
             ))}
@@ -242,7 +282,10 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
                     {budget.travelAssistance.description}
                   </Text>
                 </View>
-                <PriceColumn priceUsd={budget.travelAssistance.priceUsd} />
+                <PriceColumn
+                  priceUsd={budget.travelAssistance.priceUsd}
+                  show={showItemPrices}
+                />
               </View>
             </View>
           </View>

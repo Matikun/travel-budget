@@ -21,19 +21,38 @@ export function EstimatedTotalBar({ control }: EstimatedTotalBarProps) {
           Total estimado:{' '}
           <span className="text-primary">{formatUsd(total)}</span>
         </p>
-        <Controller
-          control={control}
-          name="showTotalInPdf"
-          render={({ field }) => (
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={(checked) => field.onChange(checked === true)}
-              />
-              Mostrar total en el PDF
-            </label>
-          )}
-        />
+        <div className="flex flex-col gap-2 sm:items-end">
+          <Controller
+            control={control}
+            name="showTotalInPdf"
+            render={({ field }) => (
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) =>
+                    field.onChange(checked === true)
+                  }
+                />
+                Mostrar total en el PDF
+              </label>
+            )}
+          />
+          <Controller
+            control={control}
+            name="hideIndividualPricesInPdf"
+            render={({ field }) => (
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) =>
+                    field.onChange(checked === true)
+                  }
+                />
+                Ocultar precios por ítem en el PDF
+              </label>
+            )}
+          />
+        </div>
       </div>
     </div>
   )

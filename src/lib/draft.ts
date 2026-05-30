@@ -167,6 +167,9 @@ export function draftHasContent(values: BudgetFormValues): boolean {
   if (!values.showTotalInPdf) {
     return true
   }
+  if (values.hideIndividualPricesInPdf) {
+    return true
+  }
   if (values.includeLogoInPdf) {
     return true
   }

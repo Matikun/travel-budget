@@ -88,9 +88,30 @@ describe('draft serialization', () => {
         transfers: [],
         travelAssistance: { enabled: false, description: '' },
         showTotalInPdf: true,
+        hideIndividualPricesInPdf: false,
         includeLogoInPdf: false,
       }),
     ).toBe(false)
+  })
+
+  it('draftHasContent is true when hideIndividualPricesInPdf is on', () => {
+    expect(
+      draftHasContent({
+        ...sample,
+        destination: '',
+        dateFrom: undefined,
+        dateTo: undefined,
+        passengers: 1,
+        flights: [],
+        hotels: [],
+        excursions: [],
+        transfers: [],
+        travelAssistance: { enabled: false, description: '' },
+        showTotalInPdf: true,
+        hideIndividualPricesInPdf: true,
+        includeLogoInPdf: false,
+      }),
+    ).toBe(true)
   })
 
   it('draftHasContent is true when includeLogoInPdf is on', () => {
@@ -107,6 +128,7 @@ describe('draft serialization', () => {
         transfers: [],
         travelAssistance: { enabled: false, description: '' },
         showTotalInPdf: true,
+        hideIndividualPricesInPdf: false,
         includeLogoInPdf: true,
       }),
     ).toBe(true)
@@ -122,6 +144,20 @@ describe('draft serialization', () => {
     expect(result.status).toBe('ok')
     if (result.status === 'ok') {
       expect(result.values.includeLogoInPdf).toBe(false)
+    }
+  })
+
+  it('parseDraftJson applies default hideIndividualPricesInPdf for old drafts', () => {
+    const envelope = createDraftEnvelope(sample)
+    const values = { ...envelope.values }
+    delete (values as { hideIndividualPricesInPdf?: boolean })
+      .hideIndividualPricesInPdf
+    const raw = JSON.stringify({ ...envelope, values })
+    const result = parseDraftJson(raw)
+
+    expect(result.status).toBe('ok')
+    if (result.status === 'ok') {
+      expect(result.values.hideIndividualPricesInPdf).toBe(false)
     }
   })
 })
@@ -186,6 +222,7 @@ describe('draft localStorage', () => {
         transfers: [],
         travelAssistance: { enabled: false, description: '' },
         showTotalInPdf: true,
+        hideIndividualPricesInPdf: false,
         includeLogoInPdf: false,
       },
       mockStorage,

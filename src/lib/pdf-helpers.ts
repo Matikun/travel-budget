@@ -63,6 +63,13 @@ export function shouldShowPdfTotal(
   return budget.showTotalInPdf && totalUsd > 0
 }
 
+/** Whether line-item prices appear in the PDF (totals still use them). */
+export function shouldShowIndividualPricesInPdf(
+  budget: Pick<BudgetFormValues, 'hideIndividualPricesInPdf'>,
+): boolean {
+  return !budget.hideIndividualPricesInPdf
+}
+
 /** Parsed budget with required header dates (post-validation). */
 export function toValidatedBudget(data: BudgetFormValues): Budget | null {
   if (!data.dateFrom || !data.dateTo) {

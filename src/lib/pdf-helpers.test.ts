@@ -8,6 +8,7 @@ import {
   budgetHasTravelAssistance,
   buildQuoteFilename,
   resolvePdfLogo,
+  shouldShowIndividualPricesInPdf,
   shouldShowPdfTotal,
   slugifyDestination,
 } from './pdf-helpers'
@@ -106,6 +107,17 @@ describe('shouldShowPdfTotal', () => {
     expect(shouldShowPdfTotal({ showTotalInPdf: true }, 100)).toBe(true)
     expect(shouldShowPdfTotal({ showTotalInPdf: false }, 100)).toBe(false)
     expect(shouldShowPdfTotal({ showTotalInPdf: true }, 0)).toBe(false)
+  })
+})
+
+describe('shouldShowIndividualPricesInPdf', () => {
+  it('hides line prices when toggle is on', () => {
+    expect(
+      shouldShowIndividualPricesInPdf({ hideIndividualPricesInPdf: false }),
+    ).toBe(true)
+    expect(
+      shouldShowIndividualPricesInPdf({ hideIndividualPricesInPdf: true }),
+    ).toBe(false)
   })
 })
 

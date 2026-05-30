@@ -136,6 +136,7 @@ const budgetBaseSchema = z.object({
   transfers: z.array(transferSchema),
   travelAssistance: travelAssistanceSchema,
   showTotalInPdf: z.boolean(),
+  hideIndividualPricesInPdf: z.boolean().default(false),
   includeLogoInPdf: z.boolean().default(false),
 })
 
@@ -240,6 +241,7 @@ export function defaultBudgetValues(): BudgetFormValues {
     transfers: [],
     travelAssistance: defaultTravelAssistance(),
     showTotalInPdf: true,
+    hideIndividualPricesInPdf: false,
     includeLogoInPdf: false,
   }
 }
@@ -322,6 +324,7 @@ export function sampleBudgetValues(): BudgetFormValues {
       priceUsd: 42,
     },
     showTotalInPdf: true,
+    hideIndividualPricesInPdf: false,
     includeLogoInPdf: false,
   }
 }
