@@ -3,6 +3,8 @@ import { Controller } from 'react-hook-form'
 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { PRICE_DISCLAIMER } from '@/lib/quote-copy'
 import type { BudgetFormValues } from '@/lib/schema'
 
 import { DatePickerField } from './date-picker-field'
@@ -35,7 +37,7 @@ export function HeaderSection({
           Información general
         </h2>
         <p className="text-sm text-muted-foreground">
-          Destino, fechas y cantidad de pasajeros.
+          Destino, fechas, pasajeros e información adicional opcional.
         </p>
       </div>
 
@@ -91,6 +93,19 @@ export function HeaderSection({
         />
         <FieldErrorMessage error={errors.passengers} />
       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="additionalInfo">Información adicional (opcional)</Label>
+        <Textarea
+          id="additionalInfo"
+          placeholder="Notas para el cliente, condiciones, observaciones del viaje, etc."
+          {...register('additionalInfo')}
+        />
+      </div>
+
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        {PRICE_DISCLAIMER}
+      </p>
     </section>
   )
 }

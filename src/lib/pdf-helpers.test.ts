@@ -97,6 +97,8 @@ describe('budget section helpers', () => {
           {
             dateFrom: new Date('2026-06-01'),
             dateTo: new Date('2026-06-05'),
+            timeFrom: '10:00',
+            timeTo: '18:00',
             pickupLocation: 'A',
             returnLocation: 'B',
           },

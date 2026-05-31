@@ -85,6 +85,8 @@ export function CarRentalsSection({
 type CarRentalFieldErrors = FieldErrorsImpl<{
   dateFrom?: Date
   dateTo?: Date
+  timeFrom?: string
+  timeTo?: string
   pickupLocation: string
   returnLocation: string
   description?: string
@@ -129,7 +131,7 @@ function CarRentalRow({
           render={({ field }) => (
             <DatePickerField
               id={`carRentals.${index}.dateFrom`}
-              label="Fecha desde"
+              label="Fecha retiro"
               value={field.value}
               onChange={field.onChange}
               error={errors?.dateFrom}
@@ -137,13 +139,23 @@ function CarRentalRow({
             />
           )}
         />
+        <div className="space-y-2">
+          <Label htmlFor={`carRentals.${index}.timeFrom`}>Hora retiro</Label>
+          <Input
+            id={`carRentals.${index}.timeFrom`}
+            type="time"
+            aria-invalid={Boolean(errors?.timeFrom)}
+            {...register(`carRentals.${index}.timeFrom`)}
+          />
+          <FieldErrorMessage error={errors?.timeFrom} />
+        </div>
         <Controller
           control={control}
           name={`carRentals.${index}.dateTo`}
           render={({ field }) => (
             <DatePickerField
               id={`carRentals.${index}.dateTo`}
-              label="Fecha hasta"
+              label="Fecha devolución"
               value={field.value}
               onChange={field.onChange}
               error={errors?.dateTo}
@@ -151,6 +163,16 @@ function CarRentalRow({
             />
           )}
         />
+        <div className="space-y-2">
+          <Label htmlFor={`carRentals.${index}.timeTo`}>Hora devolución</Label>
+          <Input
+            id={`carRentals.${index}.timeTo`}
+            type="time"
+            aria-invalid={Boolean(errors?.timeTo)}
+            {...register(`carRentals.${index}.timeTo`)}
+          />
+          <FieldErrorMessage error={errors?.timeTo} />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

@@ -4,9 +4,13 @@ Build travel quotes and itineraries from a form and export a client-ready PDF.
 
 ## What it does
 
-- Capture trip header (destination, dates, passengers) and optional sections: flights, hotels, excursions, transfers, travel assistance.
-- Optional USD prices per line; estimated total with toggle for PDF visibility.
-- Download a fixed-layout PDF suitable for clients (Spanish copy in UI and PDF).
+- Capture trip header (destination, dates, passengers, optional additional notes) and optional sections: flights, hotels, excursions, transfers, car rentals (pickup/return date, time, and location), travel assistance.
+- PDF quotes include a fixed price disclaimer (tariffs as of quote date, subject to change on booking platforms).
+- Optional USD prices per line; estimated total with toggles to show/hide the footer total and individual line prices on the PDF.
+- Optional agency logo (PNG/JPG) in the PDF header; stored globally in the browser, toggled per quote.
+- Preview or download a fixed-layout PDF suitable for clients (Spanish copy in UI and PDF).
+- Auto-save drafts to `localStorage`; export/import JSON backup.
+- Light/dark theme toggle.
 
 ## Tech stack
 
@@ -36,6 +40,8 @@ Build travel quotes and itineraries from a form and export a client-ready PDF.
 | `pnpm test:watch` | Run tests in watch mode |
 | `pnpm lint` | ESLint |
 | `pnpm typecheck` | TypeScript (`tsc -b --noEmit`) |
+| `pnpm format` | Prettier check |
+| `pnpm format:write` | Prettier write |
 | `pnpm validate` | lint + typecheck + test + build |
 
 ## Getting started
@@ -49,8 +55,13 @@ Open the URL shown in the terminal (typically `http://localhost:5173`).
 
 ## Documentation
 
-- [Implementation plan](docs/IMPLEMENTATION-PLAN.md) — phased delivery
+- [Contributing](docs/CONTRIBUTING.md) — feature workflow, commits, pre-commit docs check
+- [Implementation plan](docs/IMPLEMENTATION-PLAN.md) — phased delivery and feature status
 - [Architecture](docs/ARCHITECTURE.md) — data flow and folder layout
+- [PDF QA checklist](docs/PDF-QA-CHECKLIST.md) — manual PDF verification
+- [Agency logo plan](docs/LOGO-PDF-IMPLEMENTATION-PLAN.md) — logo on PDF (implemented)
+
+**New features:** update docs in the same commit. Cursor skill: `.cursor/skills/ship-feature/`.
 
 ## License
 

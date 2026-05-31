@@ -60,6 +60,8 @@ export function carRentalHasData(rental: CarRental): boolean {
   return (
     rental.dateFrom !== undefined ||
     rental.dateTo !== undefined ||
+    hasText(rental.timeFrom) ||
+    hasText(rental.timeTo) ||
     hasText(rental.pickupLocation) ||
     hasText(rental.returnLocation) ||
     hasText(rental.description) ||

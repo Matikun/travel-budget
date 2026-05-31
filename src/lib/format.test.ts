@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatDate, formatUsd } from './format'
+import { formatCarRentalDateTime, formatDate, formatUsd } from './format'
 
 describe('formatUsd', () => {
   it('formats numbers as USD', () => {
@@ -27,5 +27,17 @@ describe('formatUsd', () => {
 describe('formatDate', () => {
   it('formats dates in Spanish locale', () => {
     expect(formatDate(new Date(2026, 0, 15))).toMatch(/15.*2026/)
+  })
+})
+
+describe('formatCarRentalDateTime', () => {
+  it('combines date and time for PDF copy', () => {
+    expect(
+      formatCarRentalDateTime(new Date(2026, 5, 11), '10:00'),
+    ).toMatch(/11.*2026, 10:00/)
+  })
+
+  it('returns only time when date is missing', () => {
+    expect(formatCarRentalDateTime(undefined, '10:00')).toBe('10:00')
   })
 })

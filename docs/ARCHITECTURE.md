@@ -21,7 +21,7 @@ flowchart LR
 2. **Schema** — Single source of truth; types via `z.infer<typeof budgetSchema>`.
 3. **Totals** — Pure functions in `lib/totals.ts` (sum optional USD prices).
 4. **Format** — `lib/format.ts` for currency (`en-US`) and dates.
-5. **PDF** — `components/pdf/` renders only sections that have content; total shown when enabled and prices exist.
+5. **PDF** — `components/pdf/` renders only sections that have content; optional “Información adicional” from the header when filled; fixed price disclaimer from `lib/quote-copy.ts` on every export; footer total when `showTotalInPdf` and sum &gt; 0; line prices omitted when `hideIndividualPricesInPdf` is on (total still uses them). Optional agency logo resolved at generation time via `resolvePdfLogo()` in `lib/pdf-helpers.ts`.
 
 ## Content Security Policy
 
@@ -40,9 +40,9 @@ If PDF generation fails inside Cursor’s embedded browser preview, open the app
 | Path | Role |
 |------|------|
 | `src/components/ui/` | shadcn/ui primitives |
-| `src/components/form/` | Form sections (header, flights, hotels, …) |
-| `src/components/pdf/` | PDF template |
-| `src/lib/` | Domain logic: schema, totals, format, agency logo storage (no JSX) |
+| `src/components/form/` | Form sections (header, flights, hotels, excursions, transfers, car rentals, travel assistance, PDF branding) |
+| `src/components/pdf/` | PDF template and styles (`pdf-styles.ts`) |
+| `src/lib/` | Domain logic: schema, totals, format, draft, pdf-helpers, agency logo, theme, CSP (no JSX) |
 | `docs/` | Plans and architecture |
 
 ## Quality gates

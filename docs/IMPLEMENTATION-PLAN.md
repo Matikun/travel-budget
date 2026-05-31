@@ -38,9 +38,11 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 |-------|----------|
 | Flights & hotels | **Optional.** All dynamic sections start **empty**. User adds items only when needed. Minimum count per section: **0**. |
 | Excursions & transfers | Empty by default (unchanged). |
-| Empty PDF | Valid if header is filled (destination, dates, passengers). Section blocks render only when they have items (or travel assistance is enabled). |
+| Car rentals | Empty by default. Each row requires pickup/return dates, times (HH:MM), and locations when present. |
+| Empty PDF | Valid if header is filled (destination, dates, passengers). Section blocks render only when they have items (or travel assistance is enabled). Price disclaimer always at the bottom. |
 | Prices | Optional per line item. Empty = not included in total. `0` is allowed but treated as explicit zero if entered. |
 | Total in PDF | Shown only when `showTotalInPdf` is on **and** at least one price exists. |
+| Line prices in PDF | Shown by default. When `hideIndividualPricesInPdf` is on, line prices are hidden but still count toward the footer total. |
 | PDF export | Requires **valid form** (`trigger()` / full Zod parse) before generate/download. |
 | Header dates | `dateFrom <= dateTo`; both required for submit. |
 | Passengers | Positive integer, min 1, reasonable max (e.g. 99). |
@@ -52,12 +54,13 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 
 ## Functional requirements (summary)
 
-- Header: destination, date from/to, passenger count.
-- Sections: Flights, Hotels, Excursions/Tickets, Transfer, Travel assistance.
+- Header: destination, date from/to, passenger count, optional additional info (notes for the client).
+- PDF: optional “Información adicional” block when filled; fixed price disclaimer on every export (`lib/quote-copy.ts`).
+- Sections: Flights, Hotels, Excursions/Tickets, Transfer, Car rentals, Travel assistance.
 - **Dynamic arrays:** all sections start empty; add/remove freely down to zero items.
 - Prices in **USD**, optional per item.
-- **Estimated total** computed automatically; toggle to show/hide on PDF.
-- Fixed PDF template, professional layout; optional agency logo (header-left) — see [`LOGO-PDF-IMPLEMENTATION-PLAN.md`](./LOGO-PDF-IMPLEMENTATION-PLAN.md).
+- **Estimated total** computed automatically; toggles to show/hide footer total and individual line prices on PDF.
+- Fixed PDF template, professional layout; optional agency logo (header-left) — see [`LOGO-PDF-IMPLEMENTATION-PLAN.md`](./LOGO-PDF-IMPLEMENTATION-PLAN.md) (**implemented**).
 
 ---
 
@@ -106,7 +109,7 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 **Tasks:**
 - [x] Zod schemas in `lib/schema.ts` (`Budget`, `Flight`, `Hotel`, nested `Layover`, etc.).
 - [x] **Default values:** all arrays **empty**; sensible empty header defaults.
-- [x] Header UI: destination, date from/to, passengers.
+- [x] Header UI: destination, date from/to, passengers, optional additional info; price disclaimer in form and PDF.
 - [x] **Flights** (`useFieldArray`, starts empty):
   - route, duration, description;
   - type: direct | layovers;
@@ -136,10 +139,12 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 **Tasks:**
 - [x] **Excursions / Tickets** (empty by default): name, description, optional price.
 - [x] **Transfer** (empty by default): from, to, description, optional price.
+- [x] **Car rentals** (empty by default): pickup/return dates and times, pickup/return locations, description, optional price.
 - [x] **Travel assistance** (optional): include checkbox; description + price when enabled.
-- [x] `calculateTotal()` in `lib/totals.ts` — sum defined positive prices only.
+- [x] `calculateTotal()` in `lib/totals.ts` — sum defined positive prices only (includes car rentals).
 - [x] Sticky bar/card: **Total estimado: USD X,XXX.XX** (`en-US` formatting).
 - [x] Checkbox **“Mostrar total en el PDF”** (default on).
+- [x] Checkbox **“Ocultar precios por ítem en el PDF”** (default off).
 - [x] Price inputs: USD prefix/suffix; positive numbers only.
 - [x] **Tests:** `totals.test.ts` — empty, partial prices, assistance on/off, decimals; `format.test.ts` for currency.
 
@@ -153,16 +158,17 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 **Goal:** Generate and download PDF from validated data.
 
 **Tasks:**
-- [x] Register sans font (e.g. Inter) for `@react-pdf/renderer`.
+- [x] Register built-in Helvetica font for `@react-pdf/renderer` (no custom font file).
 - [x] `BudgetPdf` component — accepts parsed `Budget` type.
 - [x] PDF layout:
-  - Header: destination, dates, passengers.
+  - Header: destination, dates, passengers, optional additional info; optional agency logo (top-left); price disclaimer footer.
   - Section blocks **only if items exist** (or assistance enabled).
-  - Per item: details + right-aligned price when present.
+  - Per item: details + right-aligned price when present and not hidden.
   - Flights: Direct vs layover list.
   - Hotels: nights or date range, room type, breakfast, all inclusive.
+  - Car rentals: **Retira** / **Devuelve** lines with date, time, and location each.
   - Footer total only if `showTotalInPdf` && sum > 0.
-- [x] Styles: sober palette (e.g. `#1e3a5f` headings), A4 margins.
+- [x] Styles: clean list layout in `pdf-styles.ts` (dark gray headings, hairline dividers), A4 margins.
 - [x] **Download PDF** — validate form first; `pdf()` → blob → `quote-{destination}-{date}.pdf`.
 - [x] Error handling if generation fails (user-facing Spanish message).
 - [x] **Tests:** pure helpers for “section has content” / filename slug (if extracted); manual checklist in `docs/` for visual PDF QA.
@@ -207,6 +213,16 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 
 ---
 
+### Phase 5b — Agency logo on PDF (implemented)
+
+**Goal:** Optional agency logo in PDF header.
+
+**Tasks:** See [`LOGO-PDF-IMPLEMENTATION-PLAN.md`](./LOGO-PDF-IMPLEMENTATION-PLAN.md) — all phases complete.
+
+**Done when:** Upload/remove logo; toggle per quote; preview and download match; `pnpm validate` passes.
+
+---
+
 ### Phase 6 — Deploy & handoff
 **Goal:** Public URL for real use.
 
@@ -215,7 +231,7 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 - [ ] Deploy Vercel/Netlify from GitHub.
 - [ ] Smoke test PDF in production (Chrome, Edge, Firefox if possible).
 - [ ] README: live URL + **short Spanish “how to use”** section for operators.
-- [ ] Ensure CI runs `pnpm validate` on main.
+- [x] Ensure CI runs `pnpm validate` on main (`.github/workflows/ci.yml`).
 
 **Done when:** Stable public URL; PDF works like local.
 
@@ -271,11 +287,12 @@ Recommended solo order: **F0 → F1 → F2 → F3 → F4 → F5 → F6** (do not
 
 ## MVP definition
 
-- [ ] Full form (all sections, all optional except header rules).
-- [ ] Zero or many flights/hotels per quote.
-- [ ] USD prices + optional total on PDF.
-- [ ] Professional downloadable PDF.
-- [ ] `pnpm validate` green; README + architecture doc in English.
+- [x] Full form (all sections, all optional except header rules).
+- [x] Zero or many flights/hotels/car rentals per quote.
+- [x] USD prices + optional total on PDF + optional hide line prices.
+- [x] Professional downloadable PDF with preview.
+- [x] Optional agency logo on PDF.
+- [x] `pnpm validate` green; README + architecture doc in English.
 - [ ] Public deploy URL.
 
 **Total estimate (one person):** ~6–9 focused days (includes tests and docs).

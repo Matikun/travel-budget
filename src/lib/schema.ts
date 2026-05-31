@@ -103,10 +103,16 @@ export const transferSchema = z.object({
 
 export type Transfer = z.infer<typeof transferSchema>
 
+const carRentalTimeSchema = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Indique la hora (HH:MM)')
+
 export const carRentalSchema = z
   .object({
     dateFrom: z.date({ error: 'Seleccione la fecha de retiro' }).optional(),
     dateTo: z.date({ error: 'Seleccione la fecha de devolución' }).optional(),
+    timeFrom: carRentalTimeSchema.optional(),
+    timeTo: carRentalTimeSchema.optional(),
     pickupLocation: z.string().min(1, 'Indique el lugar de retiro'),
     returnLocation: z.string().min(1, 'Indique el lugar de devolución'),
     description: z.string().optional(),
@@ -127,6 +133,20 @@ export const carRentalSchema = z
         path: ['dateTo'],
       })
     }
+    if (!rental.timeFrom) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Indique la hora de retiro',
+        path: ['timeFrom'],
+      })
+    }
+    if (!rental.timeTo) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Indique la hora de devolución',
+        path: ['timeTo'],
+      })
+    }
     if (
       rental.dateFrom !== undefined &&
       rental.dateTo !== undefined &&
@@ -137,6 +157,21 @@ export const carRentalSchema = z
         message:
           'La fecha de retiro debe ser anterior o igual a la de devolución',
         path: ['dateTo'],
+      })
+    }
+    if (
+      rental.dateFrom !== undefined &&
+      rental.dateTo !== undefined &&
+      rental.timeFrom &&
+      rental.timeTo &&
+      rental.dateFrom.getTime() === rental.dateTo.getTime() &&
+      rental.timeFrom >= rental.timeTo
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'La hora de retiro debe ser anterior a la de devolución cuando es el mismo día',
+        path: ['timeTo'],
       })
     }
   })
@@ -163,6 +198,7 @@ export type TravelAssistance = z.infer<typeof travelAssistanceSchema>
 
 const budgetBaseSchema = z.object({
   destination: z.string().min(1, 'Indique el destino'),
+  additionalInfo: z.string().optional(),
   dateFrom: z.date({ error: 'Seleccione la fecha de inicio' }).optional(),
   dateTo: z.date({ error: 'Seleccione la fecha de fin' }).optional(),
   passengers: z
@@ -268,6 +304,8 @@ export function defaultCarRental(): CarRental {
   return {
     dateFrom: undefined,
     dateTo: undefined,
+    timeFrom: undefined,
+    timeTo: undefined,
     pickupLocation: '',
     returnLocation: '',
     description: '',
@@ -286,6 +324,7 @@ export function defaultTravelAssistance(): TravelAssistance {
 export function defaultBudgetValues(): BudgetFormValues {
   return {
     destination: '',
+    additionalInfo: '',
     passengers: 1,
     flights: [],
     hotels: [],
@@ -306,6 +345,7 @@ export function sampleBudgetValues(): BudgetFormValues {
 
   return {
     destination: 'Bariloche',
+    additionalInfo: 'Incluye tasas locales estimadas; confirmar antes del pago.',
     dateFrom: tripStart,
     dateTo: tripEnd,
     passengers: 2,
@@ -375,6 +415,8 @@ export function sampleBudgetValues(): BudgetFormValues {
       {
         dateFrom: new Date(2026, 5, 11),
         dateTo: new Date(2026, 5, 15),
+        timeFrom: '10:00',
+        timeTo: '18:00',
         pickupLocation: 'Aeropuerto BRC',
         returnLocation: 'Aeropuerto BRC',
         description: 'Compacto con seguro básico',

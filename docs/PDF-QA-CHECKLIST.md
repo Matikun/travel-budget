@@ -6,6 +6,8 @@ Manual checks after Phase 3 PDF changes. Run locally with `pnpm dev`, fill the f
 
 - [ ] Destination, date range, and passenger count match the form.
 - [ ] Dates use Spanish formatting (e.g. `15 ene 2026`).
+- [ ] **Información adicional** appears below the meta row only when the form field is filled.
+- [ ] Price disclaimer appears at the bottom of every PDF (small muted text), matching the copy in the form header section.
 
 ## Sections (only when data exists)
 
@@ -14,19 +16,21 @@ Manual checks after Phase 3 PDF changes. Run locally with `pnpm dev`, fill the f
 - [ ] **Hoteles** omitted when empty; shows nights and/or date range, room type, breakfast, all inclusive.
 - [ ] **Excursiones y tickets** omitted when empty.
 - [ ] **Traslados** omitted when empty.
+- [ ] **Alquiler de auto** omitted when empty; **Retira** and **Devuelve** lines show date, time, and location; optional description.
 - [ ] **Asistencia al viajero** appears only when the checkbox is enabled.
 
 ## Prices & total
 
 - [ ] Line prices right-aligned when present; omitted when blank.
+- [ ] “Ocultar precios por ítem en el PDF” hides line prices but footer total still reflects them when shown.
 - [ ] Footer total appears only when “Mostrar total en el PDF” is on **and** sum &gt; 0.
 - [ ] USD amounts use en-US formatting (e.g. `$1,234.50`).
 
 ## Layout & typography
 
 - [ ] A4 page with comfortable margins.
-- [ ] Headings use sober navy (`#1e3a5f`); body text readable.
-- [ ] Inter font renders (no fallback serif/sans mismatch).
+- [ ] Headings use dark gray (`#111827`); body text readable.
+- [ ] Helvetica (built-in PDF font) renders consistently.
 - [ ] Long descriptions wrap without overlapping prices.
 
 ## Download flow
@@ -37,11 +41,14 @@ Manual checks after Phase 3 PDF changes. Run locally with `pnpm dev`, fill the f
 
 ## Sample scenarios
 
-1. Header only (no sections) — valid minimal PDF.
-2. Two flights (one direct, one with layovers) + prices.
-3. Hotel with nights only; hotel with date range only.
-4. All sections filled + total shown.
-5. Prices blank everywhere — no footer total.
+1. Header only (no sections) — valid minimal PDF; disclaimer present; no “Información adicional” block.
+2. Header with additional info text — block appears under meta row before sections.
+3. Two flights (one direct, one with layovers) + prices.
+4. Hotel with nights only; hotel with date range only.
+5. All sections filled + total shown.
+6. Prices blank everywhere — no footer total; disclaimer still present.
+7. Car rental with pickup/return date, time, and location + price; section omitted when array empty.
+8. “Ocultar precios por ítem” on — items without line prices, total still correct when enabled.
 
 ## Logo / branding
 

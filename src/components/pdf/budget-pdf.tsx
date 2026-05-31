@@ -6,7 +6,8 @@ import {
   View,
 } from '@react-pdf/renderer'
 
-import { formatDate, formatUsd } from '@/lib/format'
+import { formatCarRentalDateTime, formatDate, formatUsd } from '@/lib/format'
+import { PRICE_DISCLAIMER } from '@/lib/quote-copy'
 import {
   budgetHasCarRentals,
   budgetHasExcursions,
@@ -116,17 +117,28 @@ function PdfHeaderTitle() {
   )
 }
 
-function formatCarRentalDates(rental: CarRental): string {
-  const parts: string[] = []
+function formatCarRentalSchedule(
+  date: Date | undefined,
+  time: string | undefined,
+  location: string,
+): string {
+  const when = formatCarRentalDateTime(date, time)
+  return when ? `${when} — ${location}` : location
+}
 
-  if (rental.dateFrom) {
-    parts.push(formatDate(rental.dateFrom))
-  }
-  if (rental.dateTo) {
-    parts.push(formatDate(rental.dateTo))
-  }
-
-  return parts.join(' — ')
+function CarRentalScheduleLine({
+  label,
+  value,
+}: {
+  label: string
+  value: string
+}) {
+  return (
+    <Text style={pdfStyles.itemDetail}>
+      <Text style={pdfStyles.itemDetailLabel}>{label}: </Text>
+      {value}
+    </Text>
+  )
 }
 
 function CarRentalItem({
@@ -138,22 +150,24 @@ function CarRentalItem({
   index: number
   showItemPrices: boolean
 }) {
-  const dates = formatCarRentalDates(rental)
+  const pickup = formatCarRentalSchedule(
+    rental.dateFrom,
+    rental.timeFrom,
+    rental.pickupLocation,
+  )
+  const dropoff = formatCarRentalSchedule(
+    rental.dateTo,
+    rental.timeTo,
+    rental.returnLocation,
+  )
 
   return (
     <View style={pdfStyles.item} wrap={false}>
       <View style={pdfStyles.itemRow}>
         <View style={pdfStyles.itemMain}>
           <Text style={pdfStyles.itemTitle}>Alquiler {index + 1}</Text>
-          {dates ? (
-            <Text style={pdfStyles.itemDetail}>Fechas: {dates}</Text>
-          ) : null}
-          <Text style={pdfStyles.itemDetail}>
-            Retira en: {rental.pickupLocation}
-          </Text>
-          <Text style={pdfStyles.itemDetail}>
-            Devuelve en: {rental.returnLocation}
-          </Text>
+          <CarRentalScheduleLine label="Retira" value={pickup} />
+          <CarRentalScheduleLine label="Devuelve" value={dropoff} />
           {rental.description?.trim() ? (
             <Text style={pdfStyles.itemDetail}>{rental.description}</Text>
           ) : null}
@@ -240,6 +254,17 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
             <Text style={pdfStyles.metaValue}>{String(budget.passengers)}</Text>
           </View>
         </View>
+
+        {budget.additionalInfo?.trim() ? (
+          <View style={pdfStyles.additionalInfoBlock}>
+            <Text style={pdfStyles.additionalInfoLabel}>
+              Información adicional
+            </Text>
+            <Text style={pdfStyles.additionalInfoText}>
+              {budget.additionalInfo.trim()}
+            </Text>
+          </View>
+        ) : null}
 
         {budgetHasFlights(budget) ? (
           <View style={pdfStyles.section}>
@@ -360,6 +385,8 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
             <Text style={pdfStyles.footerTotal}>{formatUsd(totalUsd)}</Text>
           </View>
         ) : null}
+
+        <Text style={pdfStyles.disclaimer}>{PRICE_DISCLAIMER}</Text>
       </Page>
     </Document>
   )

@@ -118,6 +118,10 @@ export const pdfStyles = StyleSheet.create({
     marginBottom: 3,
     lineHeight: 1.55,
   },
+  itemDetailLabel: {
+    fontWeight: 600,
+    color: pdfColors.heading,
+  },
   itemPrice: {
     fontSize: 10,
     fontWeight: 700,
@@ -149,5 +153,30 @@ export const pdfStyles = StyleSheet.create({
     fontWeight: 700,
     color: pdfColors.heading,
     lineHeight: 1.25,
+  },
+  additionalInfoBlock: {
+    marginBottom: 22,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: pdfColors.divider,
+  },
+  additionalInfoLabel: {
+    fontSize: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    color: pdfColors.label,
+    marginBottom: 6,
+    lineHeight: 1.3,
+  },
+  additionalInfoText: {
+    fontSize: 10,
+    color: pdfColors.textSecondary,
+    lineHeight: 1.55,
+  },
+  disclaimer: {
+    marginTop: 16,
+    fontSize: 8,
+    color: pdfColors.label,
+    lineHeight: 1.5,
   },
 })

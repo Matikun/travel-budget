@@ -40,7 +40,7 @@ describe('row-has-data', () => {
     expect(
       carRentalHasData({
         ...defaultCarRental(),
-        pickupLocation: 'Aeropuerto',
+        timeFrom: '10:00',
       }),
     ).toBe(true)
   })

@@ -208,6 +208,8 @@ describe('budgetSchema', () => {
         {
           dateFrom: new Date('2026-06-02'),
           dateTo: new Date('2026-06-08'),
+          timeFrom: '09:30',
+          timeTo: '17:00',
           pickupLocation: 'Aeropuerto',
           returnLocation: 'Centro',
           description: 'Compacto',
@@ -228,6 +230,8 @@ describe('budgetSchema', () => {
         {
           dateFrom: new Date('2026-06-02'),
           dateTo: new Date('2026-06-08'),
+          timeFrom: '09:30',
+          timeTo: '17:00',
           pickupLocation: '',
           returnLocation: 'Centro',
         },
@@ -246,6 +250,46 @@ describe('budgetSchema', () => {
         {
           dateFrom: new Date('2026-06-10'),
           dateTo: new Date('2026-06-02'),
+          timeFrom: '09:00',
+          timeTo: '18:00',
+          pickupLocation: 'Aeropuerto',
+          returnLocation: 'Centro',
+        },
+      ],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects car rental without pickup or return times', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      ...emptySections,
+      carRentals: [
+        {
+          dateFrom: new Date('2026-06-02'),
+          dateTo: new Date('2026-06-08'),
+          pickupLocation: 'Aeropuerto',
+          returnLocation: 'Centro',
+        },
+      ],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects car rental when return time is not after pickup on same day', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      ...emptySections,
+      carRentals: [
+        {
+          dateFrom: new Date('2026-06-02'),
+          dateTo: new Date('2026-06-02'),
+          timeFrom: '18:00',
+          timeTo: '10:00',
           pickupLocation: 'Aeropuerto',
           returnLocation: 'Centro',
         },
