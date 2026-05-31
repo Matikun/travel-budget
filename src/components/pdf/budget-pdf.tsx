@@ -107,14 +107,7 @@ function formatHotelStay(hotel: Hotel): string {
 }
 
 function PdfHeaderTitle() {
-  return (
-    <>
-      <Text style={pdfStyles.title}>Presupuesto de viaje</Text>
-      <Text style={pdfStyles.subtitle}>
-        Cotización generada para operadores
-      </Text>
-    </>
-  )
+  return <Text style={pdfStyles.title}>Presupuesto de viaje</Text>
 }
 
 function formatCarRentalSchedule(

@@ -35,11 +35,6 @@ export const pdfStyles = StyleSheet.create({
     marginBottom: 10,
     lineHeight: 1.3,
   },
-  subtitle: {
-    fontSize: 10,
-    color: pdfColors.textSecondary,
-    lineHeight: 1.6,
-  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',

@@ -1,5 +1,7 @@
 # Research — Custom logo in travel budget PDF
 
+> **Historical note (2026-05-31):** Logo on PDF is **implemented**. See [`LOGO-PDF-IMPLEMENTATION-PLAN.md`](./LOGO-PDF-IMPLEMENTATION-PLAN.md). This document remains as background research.
+
 **Agent role:** Investigation Agent (research only — no implementation plan)  
 **Date:** 2026-05-29  
 **Problem:** Allow operators to upload a logo and render it on the exported PDF quote.  
@@ -20,7 +22,7 @@
 Current PDF header is text-only (`budget-pdf.tsx`):
 
 - Title: “Presupuesto de viaje”
-- Subtitle: “Cotización generada para operadores”
+- Title only: “Presupuesto de viaje” (no subtitle)
 - Then meta row: destination, dates, passengers
 
 Page margins (`pdf-styles.ts`): 48pt horizontal, 40pt top, 48pt bottom. Footer today only shows **estimated total** when applicable — no branding zone.
