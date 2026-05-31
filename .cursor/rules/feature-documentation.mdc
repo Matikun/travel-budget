@@ -1,0 +1,30 @@
+---
+description: Require documentation updates when shipping user-facing features
+alwaysApply: true
+---
+
+# Feature + documentation
+
+When adding or changing **user-facing behavior** (form sections, schema fields, PDF output, drafts, branding), update docs in the **same change** — not in a follow-up.
+
+## Doc map (minimum)
+
+| Code change | Update |
+|-------------|--------|
+| New/changed form or PDF section | `README.md`, `docs/IMPLEMENTATION-PLAN.md`, `docs/ARCHITECTURE.md` |
+| PDF layout or pricing rules | `docs/PDF-QA-CHECKLIST.md` |
+| Focused feature (e.g. logo) | Relevant plan in `docs/` + mark status **Implemented** when done |
+
+Skip doc updates only for pure refactors, dependency bumps, or internal tests with **no** behavior change.
+
+## Commit
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) in **English**. Include doc files in the same commit as the feature.
+
+```
+feat(pdf): add car rental section to form and export
+
+Document car rentals in README, architecture, implementation plan, and PDF QA checklist.
+```
+
+For the full workflow, use the **ship-feature** skill (`.cursor/skills/ship-feature/SKILL.md`).
