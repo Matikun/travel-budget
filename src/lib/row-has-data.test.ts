@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  defaultCarRental,
   defaultExcursion,
   defaultFlight,
   defaultHotel,
@@ -9,6 +10,7 @@ import {
 } from '@/lib/schema'
 
 import {
+  carRentalHasData,
   excursionHasData,
   flightHasData,
   hotelHasData,
@@ -22,6 +24,7 @@ describe('row-has-data', () => {
     expect(hotelHasData(defaultHotel())).toBe(false)
     expect(excursionHasData(defaultExcursion())).toBe(false)
     expect(transferHasData(defaultTransfer())).toBe(false)
+    expect(carRentalHasData(defaultCarRental())).toBe(false)
     expect(layoverHasData(defaultLayover())).toBe(false)
   })
 
@@ -33,6 +36,12 @@ describe('row-has-data', () => {
     ).toBe(true)
     expect(
       transferHasData({ ...defaultTransfer(), priceUsd: 0 }),
+    ).toBe(true)
+    expect(
+      carRentalHasData({
+        ...defaultCarRental(),
+        pickupLocation: 'Aeropuerto',
+      }),
     ).toBe(true)
   })
 })

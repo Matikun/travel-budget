@@ -103,6 +103,46 @@ export const transferSchema = z.object({
 
 export type Transfer = z.infer<typeof transferSchema>
 
+export const carRentalSchema = z
+  .object({
+    dateFrom: z.date({ error: 'Seleccione la fecha de retiro' }).optional(),
+    dateTo: z.date({ error: 'Seleccione la fecha de devolución' }).optional(),
+    pickupLocation: z.string().min(1, 'Indique el lugar de retiro'),
+    returnLocation: z.string().min(1, 'Indique el lugar de devolución'),
+    description: z.string().optional(),
+    priceUsd: optionalUsdPriceSchema,
+  })
+  .superRefine((rental, ctx) => {
+    if (rental.dateFrom === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Seleccione la fecha de retiro',
+        path: ['dateFrom'],
+      })
+    }
+    if (rental.dateTo === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Seleccione la fecha de devolución',
+        path: ['dateTo'],
+      })
+    }
+    if (
+      rental.dateFrom !== undefined &&
+      rental.dateTo !== undefined &&
+      rental.dateFrom > rental.dateTo
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'La fecha de retiro debe ser anterior o igual a la de devolución',
+        path: ['dateTo'],
+      })
+    }
+  })
+
+export type CarRental = z.infer<typeof carRentalSchema>
+
 export const travelAssistanceSchema = z
   .object({
     enabled: z.boolean(),
@@ -134,6 +174,7 @@ const budgetBaseSchema = z.object({
   hotels: z.array(hotelSchema),
   excursions: z.array(excursionSchema),
   transfers: z.array(transferSchema),
+  carRentals: z.array(carRentalSchema),
   travelAssistance: travelAssistanceSchema,
   showTotalInPdf: z.boolean(),
   hideIndividualPricesInPdf: z.boolean().default(false),
@@ -223,6 +264,17 @@ export function defaultTransfer(): Transfer {
   }
 }
 
+export function defaultCarRental(): CarRental {
+  return {
+    dateFrom: undefined,
+    dateTo: undefined,
+    pickupLocation: '',
+    returnLocation: '',
+    description: '',
+    priceUsd: undefined,
+  }
+}
+
 export function defaultTravelAssistance(): TravelAssistance {
   return {
     enabled: false,
@@ -239,6 +291,7 @@ export function defaultBudgetValues(): BudgetFormValues {
     hotels: [],
     excursions: [],
     transfers: [],
+    carRentals: [],
     travelAssistance: defaultTravelAssistance(),
     showTotalInPdf: true,
     hideIndividualPricesInPdf: false,
@@ -316,6 +369,16 @@ export function sampleBudgetValues(): BudgetFormValues {
         to: 'Hotel Llao Llao',
         description: 'Traslado privado ida',
         priceUsd: 55,
+      },
+    ],
+    carRentals: [
+      {
+        dateFrom: new Date(2026, 5, 11),
+        dateTo: new Date(2026, 5, 15),
+        pickupLocation: 'Aeropuerto BRC',
+        returnLocation: 'Aeropuerto BRC',
+        description: 'Compacto con seguro básico',
+        priceUsd: 180,
       },
     ],
     travelAssistance: {

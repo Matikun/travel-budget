@@ -8,6 +8,7 @@ import {
 
 import { formatDate, formatUsd } from '@/lib/format'
 import {
+  budgetHasCarRentals,
   budgetHasExcursions,
   budgetHasFlights,
   budgetHasHotels,
@@ -16,7 +17,7 @@ import {
   shouldShowIndividualPricesInPdf,
   shouldShowPdfTotal,
 } from '@/lib/pdf-helpers'
-import type { Budget, Flight, Hotel, RoomType } from '@/lib/schema'
+import type { Budget, CarRental, Flight, Hotel, RoomType } from '@/lib/schema'
 import { calculateBudgetTotal } from '@/lib/totals'
 
 import { pdfStyles } from './pdf-styles'
@@ -112,6 +113,54 @@ function PdfHeaderTitle() {
         Cotización generada para operadores
       </Text>
     </>
+  )
+}
+
+function formatCarRentalDates(rental: CarRental): string {
+  const parts: string[] = []
+
+  if (rental.dateFrom) {
+    parts.push(formatDate(rental.dateFrom))
+  }
+  if (rental.dateTo) {
+    parts.push(formatDate(rental.dateTo))
+  }
+
+  return parts.join(' — ')
+}
+
+function CarRentalItem({
+  rental,
+  index,
+  showItemPrices,
+}: {
+  rental: CarRental
+  index: number
+  showItemPrices: boolean
+}) {
+  const dates = formatCarRentalDates(rental)
+
+  return (
+    <View style={pdfStyles.item} wrap={false}>
+      <View style={pdfStyles.itemRow}>
+        <View style={pdfStyles.itemMain}>
+          <Text style={pdfStyles.itemTitle}>Alquiler {index + 1}</Text>
+          {dates ? (
+            <Text style={pdfStyles.itemDetail}>Fechas: {dates}</Text>
+          ) : null}
+          <Text style={pdfStyles.itemDetail}>
+            Retira en: {rental.pickupLocation}
+          </Text>
+          <Text style={pdfStyles.itemDetail}>
+            Devuelve en: {rental.returnLocation}
+          </Text>
+          {rental.description?.trim() ? (
+            <Text style={pdfStyles.itemDetail}>{rental.description}</Text>
+          ) : null}
+        </View>
+        <PriceColumn priceUsd={rental.priceUsd} show={showItemPrices} />
+      </View>
+    </View>
   )
 }
 
@@ -268,6 +317,20 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
                   />
                 </View>
               </View>
+            ))}
+          </View>
+        ) : null}
+
+        {budgetHasCarRentals(budget) ? (
+          <View style={pdfStyles.section}>
+            <Text style={pdfStyles.sectionTitle}>Alquiler de auto</Text>
+            {budget.carRentals.map((rental, index) => (
+              <CarRentalItem
+                key={index}
+                rental={rental}
+                index={index}
+                showItemPrices={showItemPrices}
+              />
             ))}
           </View>
         ) : null}

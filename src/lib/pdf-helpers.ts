@@ -49,6 +49,12 @@ export function budgetHasTransfers(
   return budget.transfers.length > 0
 }
 
+export function budgetHasCarRentals(
+  budget: Pick<BudgetFormValues, 'carRentals'>,
+): boolean {
+  return budget.carRentals.length > 0
+}
+
 export function budgetHasTravelAssistance(
   budget: Pick<BudgetFormValues, 'travelAssistance'>,
 ): boolean {

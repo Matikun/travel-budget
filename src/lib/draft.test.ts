@@ -86,6 +86,7 @@ describe('draft serialization', () => {
         hotels: [],
         excursions: [],
         transfers: [],
+        carRentals: [],
         travelAssistance: { enabled: false, description: '' },
         showTotalInPdf: true,
         hideIndividualPricesInPdf: false,
@@ -106,6 +107,7 @@ describe('draft serialization', () => {
         hotels: [],
         excursions: [],
         transfers: [],
+        carRentals: [],
         travelAssistance: { enabled: false, description: '' },
         showTotalInPdf: true,
         hideIndividualPricesInPdf: true,
@@ -126,6 +128,7 @@ describe('draft serialization', () => {
         hotels: [],
         excursions: [],
         transfers: [],
+        carRentals: [],
         travelAssistance: { enabled: false, description: '' },
         showTotalInPdf: true,
         hideIndividualPricesInPdf: false,
@@ -158,6 +161,19 @@ describe('draft serialization', () => {
     expect(result.status).toBe('ok')
     if (result.status === 'ok') {
       expect(result.values.hideIndividualPricesInPdf).toBe(false)
+    }
+  })
+
+  it('parseDraftJson defaults missing carRentals to empty array', () => {
+    const envelope = createDraftEnvelope(sample)
+    const values = { ...envelope.values }
+    delete (values as { carRentals?: unknown }).carRentals
+    const raw = JSON.stringify({ ...envelope, values })
+    const result = parseDraftJson(raw)
+
+    expect(result.status).toBe('ok')
+    if (result.status === 'ok') {
+      expect(result.values.carRentals).toEqual([])
     }
   })
 })
@@ -220,6 +236,7 @@ describe('draft localStorage', () => {
         hotels: [],
         excursions: [],
         transfers: [],
+        carRentals: [],
         travelAssistance: { enabled: false, description: '' },
         showTotalInPdf: true,
         hideIndividualPricesInPdf: false,

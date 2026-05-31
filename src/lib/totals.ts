@@ -4,6 +4,7 @@ export type BudgetPricesInput = {
   hotels?: Array<{ priceUsd?: number }>
   excursions?: Array<{ priceUsd?: number }>
   transfers?: Array<{ priceUsd?: number }>
+  carRentals?: Array<{ priceUsd?: number }>
   travelAssistance?: { enabled?: boolean; priceUsd?: number }
 }
 
@@ -37,6 +38,7 @@ export function collectBudgetPrices(
     ...collectLinePrices(budget.hotels),
     ...collectLinePrices(budget.excursions),
     ...collectLinePrices(budget.transfers),
+    ...collectLinePrices(budget.carRentals),
   ]
 
   if (budget.travelAssistance?.enabled) {

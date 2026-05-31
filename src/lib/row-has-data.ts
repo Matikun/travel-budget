@@ -1,4 +1,11 @@
-import type { Excursion, Flight, Hotel, Layover, Transfer } from '@/lib/schema'
+import type {
+  CarRental,
+  Excursion,
+  Flight,
+  Hotel,
+  Layover,
+  Transfer,
+} from '@/lib/schema'
 
 function hasText(value: string | undefined): boolean {
   return Boolean(value?.trim())
@@ -46,5 +53,16 @@ export function transferHasData(transfer: Transfer): boolean {
     hasText(transfer.to) ||
     hasText(transfer.description) ||
     hasPrice(transfer.priceUsd)
+  )
+}
+
+export function carRentalHasData(rental: CarRental): boolean {
+  return (
+    rental.dateFrom !== undefined ||
+    rental.dateTo !== undefined ||
+    hasText(rental.pickupLocation) ||
+    hasText(rental.returnLocation) ||
+    hasText(rental.description) ||
+    hasPrice(rental.priceUsd)
   )
 }

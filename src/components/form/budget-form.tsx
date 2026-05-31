@@ -38,6 +38,7 @@ import { HotelsSection } from './hotels-section'
 import { PdfBrandingSection } from './pdf-branding-section'
 import { PdfPreviewDialog } from './pdf-preview-dialog'
 import { TransfersSection } from './transfers-section'
+import { CarRentalsSection } from './car-rentals-section'
 import { TravelAssistanceSection } from './travel-assistance-section'
 
 const DRAFT_DEBOUNCE_MS = 500
@@ -337,6 +338,12 @@ export function BudgetForm() {
             />
             <Separator />
             <TransfersSection
+              control={control}
+              errors={errors}
+              register={register}
+            />
+            <Separator />
+            <CarRentalsSection
               control={control}
               errors={errors}
               register={register}

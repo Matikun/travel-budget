@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  budgetHasCarRentals,
   budgetHasExcursions,
   budgetHasFlights,
   budgetHasHotels,
@@ -84,6 +85,22 @@ describe('budget section helpers', () => {
     expect(
       budgetHasTransfers({
         transfers: [{ from: 'A', to: 'B' }],
+      }),
+    ).toBe(true)
+  })
+
+  it('detects car rentals section', () => {
+    expect(budgetHasCarRentals({ carRentals: [] })).toBe(false)
+    expect(
+      budgetHasCarRentals({
+        carRentals: [
+          {
+            dateFrom: new Date('2026-06-01'),
+            dateTo: new Date('2026-06-05'),
+            pickupLocation: 'A',
+            returnLocation: 'B',
+          },
+        ],
       }),
     ).toBe(true)
   })

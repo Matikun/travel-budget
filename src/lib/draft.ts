@@ -2,6 +2,7 @@ import {
   budgetFormSchema,
   defaultBudgetValues,
   type BudgetFormValues,
+  type CarRental,
   type Hotel,
 } from './schema'
 
@@ -19,13 +20,19 @@ type SerializedHotel = Omit<Hotel, 'dateFrom' | 'dateTo'> & {
   dateTo?: string
 }
 
+type SerializedCarRental = Omit<CarRental, 'dateFrom' | 'dateTo'> & {
+  dateFrom?: string
+  dateTo?: string
+}
+
 export type SerializedBudgetFormValues = Omit<
   BudgetFormValues,
-  'dateFrom' | 'dateTo' | 'hotels'
+  'dateFrom' | 'dateTo' | 'hotels' | 'carRentals'
 > & {
   dateFrom?: string
   dateTo?: string
   hotels: SerializedHotel[]
+  carRentals?: SerializedCarRental[]
 }
 
 export type DraftEnvelope = {
@@ -58,6 +65,11 @@ export function serializeBudgetValues(
       dateFrom: serializeDate(hotel.dateFrom),
       dateTo: serializeDate(hotel.dateTo),
     })),
+    carRentals: values.carRentals.map((rental) => ({
+      ...rental,
+      dateFrom: serializeDate(rental.dateFrom),
+      dateTo: serializeDate(rental.dateTo),
+    })),
   }
 }
 
@@ -72,6 +84,11 @@ export function deserializeBudgetValues(
       ...hotel,
       dateFrom: deserializeDate(hotel.dateFrom),
       dateTo: deserializeDate(hotel.dateTo),
+    })),
+    carRentals: (serialized.carRentals ?? []).map((rental) => ({
+      ...rental,
+      dateFrom: deserializeDate(rental.dateFrom),
+      dateTo: deserializeDate(rental.dateTo),
     })),
   }
 }
@@ -159,6 +176,9 @@ export function draftHasContent(values: BudgetFormValues): boolean {
     return true
   }
   if (values.transfers.length > 0) {
+    return true
+  }
+  if (values.carRentals.length > 0) {
     return true
   }
   if (values.travelAssistance.enabled) {

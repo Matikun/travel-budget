@@ -34,14 +34,15 @@ describe('calculateBudgetTotal', () => {
     expect(calculateBudgetTotal(base)).toBe(0)
   })
 
-  it('sums prices across flights, hotels, excursions, and transfers', () => {
+  it('sums prices across flights, hotels, excursions, transfers, and car rentals', () => {
     const budget: BudgetPricesInput = {
       flights: [{ priceUsd: 200 }],
       hotels: [{ priceUsd: 300 }],
       excursions: [{ priceUsd: 75.5 }],
       transfers: [{ priceUsd: 40 }],
+      carRentals: [{ priceUsd: 180 }],
     }
-    expect(calculateBudgetTotal(budget)).toBeCloseTo(615.5)
+    expect(calculateBudgetTotal(budget)).toBeCloseTo(795.5)
   })
 
   it('ignores assistance price when assistance is disabled', () => {

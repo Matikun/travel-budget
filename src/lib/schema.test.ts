@@ -20,6 +20,7 @@ const baseHeader = {
 const emptySections = {
   excursions: [] as const,
   transfers: [] as const,
+  carRentals: [] as const,
   travelAssistance: { enabled: false as const },
   showTotalInPdf: true,
   hideIndividualPricesInPdf: false,
@@ -147,6 +148,7 @@ describe('budgetSchema', () => {
       transfers: [
         { from: 'Aeropuerto', to: 'Hotel', description: 'Privado', priceUsd: 35 },
       ],
+      carRentals: [],
       travelAssistance: {
         enabled: true,
         description: 'Cobertura médica',
@@ -175,6 +177,7 @@ describe('budgetSchema', () => {
       hotels: [],
       excursions: [{ name: '', priceUsd: 10 }],
       transfers: [],
+      carRentals: [] as const,
       travelAssistance: { enabled: false },
       showTotalInPdf: true,
     })
@@ -188,8 +191,65 @@ describe('budgetSchema', () => {
       hotels: [],
       excursions: [],
       transfers: [{ from: '', to: 'Hotel', priceUsd: 10 }],
+      carRentals: [] as const,
       travelAssistance: { enabled: false },
       showTotalInPdf: true,
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts car rental with dates and locations', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      ...emptySections,
+      carRentals: [
+        {
+          dateFrom: new Date('2026-06-02'),
+          dateTo: new Date('2026-06-08'),
+          pickupLocation: 'Aeropuerto',
+          returnLocation: 'Centro',
+          description: 'Compacto',
+          priceUsd: 120,
+        },
+      ],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects car rental without pickup or return location', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      ...emptySections,
+      carRentals: [
+        {
+          dateFrom: new Date('2026-06-02'),
+          dateTo: new Date('2026-06-08'),
+          pickupLocation: '',
+          returnLocation: 'Centro',
+        },
+      ],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects car rental when return date is before pickup date', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [],
+      hotels: [],
+      ...emptySections,
+      carRentals: [
+        {
+          dateFrom: new Date('2026-06-10'),
+          dateTo: new Date('2026-06-02'),
+          pickupLocation: 'Aeropuerto',
+          returnLocation: 'Centro',
+        },
+      ],
     })
     expect(result.success).toBe(false)
   })
@@ -272,6 +332,7 @@ describe('budgetSchema', () => {
       hotels: [],
       excursions: [] as const,
       transfers: [] as const,
+      carRentals: [] as const,
       travelAssistance: { enabled: false as const },
       showTotalInPdf: true,
     })
@@ -318,6 +379,7 @@ describe('defaultBudgetValues', () => {
     expect(defaults.hotels).toEqual([])
     expect(defaults.excursions).toEqual([])
     expect(defaults.transfers).toEqual([])
+    expect(defaults.carRentals).toEqual([])
     expect(defaults.travelAssistance.enabled).toBe(false)
     expect(defaults.showTotalInPdf).toBe(true)
     expect(defaults.hideIndividualPricesInPdf).toBe(false)
@@ -346,6 +408,7 @@ describe('sampleBudgetValues', () => {
     expect(sample.hotels.length).toBeGreaterThan(0)
     expect(sample.excursions.length).toBeGreaterThan(0)
     expect(sample.transfers.length).toBeGreaterThan(0)
+    expect(sample.carRentals.length).toBeGreaterThan(0)
     expect(sample.travelAssistance.enabled).toBe(true)
   })
 })
