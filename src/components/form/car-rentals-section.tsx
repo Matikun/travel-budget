@@ -13,6 +13,7 @@ import { ConfirmRemoveButton } from './confirm-remove-button'
 import { DatePickerField } from './date-picker-field'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
+import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
 import { SectionEmptyState } from './section-empty-state'
 
 type CarRentalsSectionProps = {
@@ -220,6 +221,10 @@ function CarRentalRow({
           setValueAs: (value: string) =>
             value === '' ? undefined : Number(value),
         })}
+      />
+      <ShowPriceInPdfCheckbox
+        control={control}
+        name={`carRentals.${index}.showPriceInPdf`}
       />
     </div>
   )

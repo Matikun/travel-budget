@@ -4,9 +4,9 @@ Build travel quotes and itineraries from a form and export a client-ready PDF.
 
 ## What it does
 
-- Capture trip header (destination, dates, passengers, optional additional notes) and optional sections: flights, hotels, excursions, transfers, car rentals (pickup/return date, time, and location), travel assistance.
+- Capture trip header (destination, dates, passengers, optional additional notes) and optional sections: flights (optional departure/arrival date and time per flight), hotels, excursions, transfers, car rentals (pickup/return date, time, and location), travel assistance.
 - PDF quotes include a fixed price disclaimer (tariffs as of quote date, subject to change on booking platforms).
-- Optional USD prices per line; estimated total with toggles to show/hide the footer total and individual line prices on the PDF.
+- Optional USD prices per line; per-item checkbox to show/hide each line price on the PDF; estimated total with toggles to show/hide the footer total and all line prices at once.
 - Optional agency logo (PNG/JPG) in the PDF header; stored globally in the browser, toggled per quote.
 - Preview or download a fixed-layout PDF suitable for clients (Spanish copy in UI and PDF).
 - Auto-save drafts to `localStorage`; export/import JSON backup.

@@ -42,7 +42,7 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 | Empty PDF | Valid if header is filled (destination, dates, passengers). Section blocks render only when they have items (or travel assistance is enabled). Price disclaimer always at the bottom. |
 | Prices | Optional per line item. Empty = not included in total. `0` is allowed but treated as explicit zero if entered. |
 | Total in PDF | Shown only when `showTotalInPdf` is on **and** at least one price exists. |
-| Line prices in PDF | Shown by default. When `hideIndividualPricesInPdf` is on, line prices are hidden but still count toward the footer total. |
+| Line prices in PDF | Shown by default per item (`showPriceInPdf`). Each line has a “Mostrar precio en el PDF” checkbox. When `hideIndividualPricesInPdf` is on, all line prices are hidden but still count toward the footer total. |
 | PDF export | Requires **valid form** (`trigger()` / full Zod parse) before generate/download. |
 | Header dates | `dateFrom <= dateTo`; both required for submit. |
 | Passengers | Positive integer, min 1, reasonable max (e.g. 99). |
@@ -59,7 +59,7 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 - Sections: Flights, Hotels, Excursions/Tickets, Transfer, Car rentals, Travel assistance.
 - **Dynamic arrays:** all sections start empty; add/remove freely down to zero items.
 - Prices in **USD**, optional per item.
-- **Estimated total** computed automatically; toggles to show/hide footer total and individual line prices on PDF.
+- **Estimated total** computed automatically; toggles to show/hide footer total and all line prices on PDF; per-item checkbox to show/hide each line price.
 - Fixed PDF template, professional layout; optional agency logo (header-left) — see [`LOGO-PDF-IMPLEMENTATION-PLAN.md`](./LOGO-PDF-IMPLEMENTATION-PLAN.md) (**implemented**).
 
 ---
@@ -111,7 +111,7 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 - [x] **Default values:** all arrays **empty**; sensible empty header defaults.
 - [x] Header UI: destination, date from/to, passengers, optional additional info; price disclaimer in form and PDF.
 - [x] **Flights** (`useFieldArray`, starts empty):
-  - route, duration, description;
+  - route, duration, optional departure/arrival date and time, description;
   - type: direct | layovers;
   - if layovers: nested dynamic array (where + duration);
   - optional USD price;

@@ -8,6 +8,7 @@ import type { BudgetFormValues } from '@/lib/schema'
 
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
+import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
 
 type TravelAssistanceSectionProps = {
   control: Control<BudgetFormValues>
@@ -82,6 +83,10 @@ export function TravelAssistanceSection({
                   setValueAs: (value: string) =>
                     value === '' ? undefined : Number(value),
                 })}
+              />
+              <ShowPriceInPdfCheckbox
+                control={control}
+                name="travelAssistance.showPriceInPdf"
               />
             </div>
           ) : (

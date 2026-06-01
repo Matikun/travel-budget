@@ -15,7 +15,7 @@ import {
   budgetHasHotels,
   budgetHasTransfers,
   budgetHasTravelAssistance,
-  shouldShowIndividualPricesInPdf,
+  shouldShowItemPriceInPdf,
   shouldShowPdfTotal,
 } from '@/lib/pdf-helpers'
 import type { Budget, CarRental, Flight, Hotel, RoomType } from '@/lib/schema'
@@ -49,6 +49,19 @@ function PriceColumn({
   return <Text style={pdfStyles.itemPrice}>{formatUsd(priceUsd)}</Text>
 }
 
+function formatFlightSchedule(flight: Flight): { label: string; value: string }[] {
+  const lines: { label: string; value: string }[] = []
+  const departure = formatCarRentalDateTime(flight.dateFrom, flight.timeFrom)
+  if (departure) {
+    lines.push({ label: 'Salida', value: departure })
+  }
+  const arrival = formatCarRentalDateTime(flight.dateTo, flight.timeTo)
+  if (arrival) {
+    lines.push({ label: 'Llegada', value: arrival })
+  }
+  return lines
+}
+
 function FlightItem({
   flight,
   index,
@@ -58,6 +71,8 @@ function FlightItem({
   index: number
   showItemPrices: boolean
 }) {
+  const flightSchedule = formatFlightSchedule(flight)
+
   return (
     <View style={pdfStyles.item} wrap={false}>
       <View style={pdfStyles.itemRow}>
@@ -65,6 +80,12 @@ function FlightItem({
           <Text style={pdfStyles.itemTitle}>
             Vuelo {index + 1}: {flight.route}
           </Text>
+          {flightSchedule.map((line) => (
+            <Text key={line.label} style={pdfStyles.itemDetail}>
+              <Text style={pdfStyles.itemDetailLabel}>{line.label}: </Text>
+              {line.value}
+            </Text>
+          ))}
           <Text style={pdfStyles.itemDetail}>Duración: {flight.duration}</Text>
           <Text style={pdfStyles.itemDetail}>
             Tipo: {flight.type === 'direct' ? 'Directo' : 'Con escalas'}
@@ -213,7 +234,6 @@ function HotelItem({
 export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
   const totalUsd = calculateBudgetTotal(budget)
   const showTotal = shouldShowPdfTotal(budget, totalUsd)
-  const showItemPrices = shouldShowIndividualPricesInPdf(budget)
 
   return (
     <Document title={`Presupuesto — ${budget.destination}`}>
@@ -267,7 +287,7 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
                 key={index}
                 flight={flight}
                 index={index}
-                showItemPrices={showItemPrices}
+                showItemPrices={shouldShowItemPriceInPdf(budget, flight)}
               />
             ))}
           </View>
@@ -281,7 +301,7 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
                 key={index}
                 hotel={hotel}
                 index={index}
-                showItemPrices={showItemPrices}
+                showItemPrices={shouldShowItemPriceInPdf(budget, hotel)}
               />
             ))}
           </View>
@@ -305,7 +325,7 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
                   </View>
                   <PriceColumn
                     priceUsd={excursion.priceUsd}
-                    show={showItemPrices}
+                    show={shouldShowItemPriceInPdf(budget, excursion)}
                   />
                 </View>
               </View>
@@ -331,7 +351,7 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
                   </View>
                   <PriceColumn
                     priceUsd={transfer.priceUsd}
-                    show={showItemPrices}
+                    show={shouldShowItemPriceInPdf(budget, transfer)}
                   />
                 </View>
               </View>
@@ -347,7 +367,7 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
                 key={index}
                 rental={rental}
                 index={index}
-                showItemPrices={showItemPrices}
+                showItemPrices={shouldShowItemPriceInPdf(budget, rental)}
               />
             ))}
           </View>
@@ -365,7 +385,10 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
                 </View>
                 <PriceColumn
                   priceUsd={budget.travelAssistance.priceUsd}
-                  show={showItemPrices}
+                  show={shouldShowItemPriceInPdf(
+                    budget,
+                    budget.travelAssistance,
+                  )}
                 />
               </View>
             </View>

@@ -12,6 +12,7 @@ import { transferHasData } from '@/lib/row-has-data'
 import { ConfirmRemoveButton } from './confirm-remove-button'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
+import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
 import { SectionEmptyState } from './section-empty-state'
 
 type TransfersSectionProps = {
@@ -160,6 +161,10 @@ function TransferRow({
           setValueAs: (value: string) =>
             value === '' ? undefined : Number(value),
         })}
+      />
+      <ShowPriceInPdfCheckbox
+        control={control}
+        name={`transfers.${index}.showPriceInPdf`}
       />
     </div>
   )

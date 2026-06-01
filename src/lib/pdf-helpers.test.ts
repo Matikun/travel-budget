@@ -10,6 +10,7 @@ import {
   buildQuoteFilename,
   resolvePdfLogo,
   shouldShowIndividualPricesInPdf,
+  shouldShowItemPriceInPdf,
   shouldShowPdfTotal,
   slugifyDestination,
 } from './pdf-helpers'
@@ -48,6 +49,7 @@ describe('budget section helpers', () => {
             duration: '2h',
             type: 'direct',
             layovers: [],
+            showPriceInPdf: true,
           },
         ],
       }),
@@ -65,6 +67,7 @@ describe('budget section helpers', () => {
             breakfast: false,
             allInclusive: false,
             nights: 2,
+            showPriceInPdf: true,
           },
         ],
       }),
@@ -75,7 +78,7 @@ describe('budget section helpers', () => {
     expect(budgetHasExcursions({ excursions: [] })).toBe(false)
     expect(
       budgetHasExcursions({
-        excursions: [{ name: 'City tour' }],
+        excursions: [{ name: 'City tour', showPriceInPdf: true }],
       }),
     ).toBe(true)
   })
@@ -84,7 +87,7 @@ describe('budget section helpers', () => {
     expect(budgetHasTransfers({ transfers: [] })).toBe(false)
     expect(
       budgetHasTransfers({
-        transfers: [{ from: 'A', to: 'B' }],
+        transfers: [{ from: 'A', to: 'B', showPriceInPdf: true }],
       }),
     ).toBe(true)
   })
@@ -101,6 +104,7 @@ describe('budget section helpers', () => {
             timeTo: '18:00',
             pickupLocation: 'A',
             returnLocation: 'B',
+            showPriceInPdf: true,
           },
         ],
       }),
@@ -110,12 +114,12 @@ describe('budget section helpers', () => {
   it('detects travel assistance when enabled', () => {
     expect(
       budgetHasTravelAssistance({
-        travelAssistance: { enabled: false },
+        travelAssistance: { enabled: false, showPriceInPdf: true },
       }),
     ).toBe(false)
     expect(
       budgetHasTravelAssistance({
-        travelAssistance: { enabled: true, description: 'Plan' },
+        travelAssistance: { enabled: true, description: 'Plan', showPriceInPdf: true },
       }),
     ).toBe(true)
   })
@@ -136,6 +140,30 @@ describe('shouldShowIndividualPricesInPdf', () => {
     ).toBe(true)
     expect(
       shouldShowIndividualPricesInPdf({ hideIndividualPricesInPdf: true }),
+    ).toBe(false)
+  })
+})
+
+describe('shouldShowItemPriceInPdf', () => {
+  const budgetVisible = { hideIndividualPricesInPdf: false }
+  const budgetHidden = { hideIndividualPricesInPdf: true }
+
+  it('shows price when global and item toggles allow', () => {
+    expect(
+      shouldShowItemPriceInPdf(budgetVisible, { showPriceInPdf: true }),
+    ).toBe(true)
+    expect(shouldShowItemPriceInPdf(budgetVisible, {})).toBe(true)
+  })
+
+  it('hides price when global toggle hides all', () => {
+    expect(
+      shouldShowItemPriceInPdf(budgetHidden, { showPriceInPdf: true }),
+    ).toBe(false)
+  })
+
+  it('hides price when item toggle is off', () => {
+    expect(
+      shouldShowItemPriceInPdf(budgetVisible, { showPriceInPdf: false }),
     ).toBe(false)
   })
 })

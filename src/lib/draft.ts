@@ -3,6 +3,7 @@ import {
   defaultBudgetValues,
   type BudgetFormValues,
   type CarRental,
+  type Flight,
   type Hotel,
 } from './schema'
 
@@ -14,6 +15,11 @@ export type DraftParseResult =
   | { status: 'incompatible' }
   | { status: 'invalid' }
   | { status: 'missing' }
+
+type SerializedFlight = Omit<Flight, 'dateFrom' | 'dateTo'> & {
+  dateFrom?: string
+  dateTo?: string
+}
 
 type SerializedHotel = Omit<Hotel, 'dateFrom' | 'dateTo'> & {
   dateFrom?: string
@@ -27,10 +33,11 @@ type SerializedCarRental = Omit<CarRental, 'dateFrom' | 'dateTo'> & {
 
 export type SerializedBudgetFormValues = Omit<
   BudgetFormValues,
-  'dateFrom' | 'dateTo' | 'hotels' | 'carRentals'
+  'dateFrom' | 'dateTo' | 'flights' | 'hotels' | 'carRentals'
 > & {
   dateFrom?: string
   dateTo?: string
+  flights: SerializedFlight[]
   hotels: SerializedHotel[]
   carRentals?: SerializedCarRental[]
 }
@@ -60,6 +67,11 @@ export function serializeBudgetValues(
     ...values,
     dateFrom: serializeDate(values.dateFrom),
     dateTo: serializeDate(values.dateTo),
+    flights: values.flights.map((flight) => ({
+      ...flight,
+      dateFrom: serializeDate(flight.dateFrom),
+      dateTo: serializeDate(flight.dateTo),
+    })),
     hotels: values.hotels.map((hotel) => ({
       ...hotel,
       dateFrom: serializeDate(hotel.dateFrom),
@@ -80,6 +92,11 @@ export function deserializeBudgetValues(
     ...serialized,
     dateFrom: deserializeDate(serialized.dateFrom),
     dateTo: deserializeDate(serialized.dateTo),
+    flights: serialized.flights.map((flight) => ({
+      ...flight,
+      dateFrom: deserializeDate(flight.dateFrom),
+      dateTo: deserializeDate(flight.dateTo),
+    })),
     hotels: serialized.hotels.map((hotel) => ({
       ...hotel,
       dateFrom: deserializeDate(hotel.dateFrom),

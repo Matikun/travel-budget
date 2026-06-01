@@ -21,7 +21,7 @@ flowchart LR
 2. **Schema** — Single source of truth; types via `z.infer<typeof budgetSchema>`.
 3. **Totals** — Pure functions in `lib/totals.ts` (sum optional USD prices).
 4. **Format** — `lib/format.ts` for currency (`en-US`) and dates.
-5. **PDF** — `components/pdf/` renders only sections that have content; optional “Información adicional” from the header when filled; fixed price disclaimer from `lib/quote-copy.ts` on every export; footer total when `showTotalInPdf` and sum &gt; 0; line prices omitted when `hideIndividualPricesInPdf` is on (total still uses them). Optional agency logo resolved at generation time via `resolvePdfLogo()` in `lib/pdf-helpers.ts`.
+5. **PDF** — `components/pdf/` renders only sections that have content; optional “Información adicional” from the header when filled; fixed price disclaimer from `lib/quote-copy.ts` on every export; footer total when `showTotalInPdf` and sum &gt; 0; line prices per item when `showPriceInPdf` is on and `hideIndividualPricesInPdf` is off (total still uses all entered prices). Optional agency logo resolved at generation time via `resolvePdfLogo()` in `lib/pdf-helpers.ts`.
 
 ## Content Security Policy
 

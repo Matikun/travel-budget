@@ -23,6 +23,10 @@ export function flightHasData(flight: Flight): boolean {
   return (
     hasText(flight.route) ||
     hasText(flight.duration) ||
+    flight.dateFrom !== undefined ||
+    hasText(flight.timeFrom) ||
+    flight.dateTo !== undefined ||
+    hasText(flight.timeTo) ||
     hasText(flight.description) ||
     hasPrice(flight.priceUsd) ||
     flight.layovers.some(layoverHasData)

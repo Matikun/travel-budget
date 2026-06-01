@@ -12,6 +12,7 @@ import { excursionHasData } from '@/lib/row-has-data'
 import { ConfirmRemoveButton } from './confirm-remove-button'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
+import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
 import { SectionEmptyState } from './section-empty-state'
 
 type ExcursionsSectionProps = {
@@ -147,6 +148,10 @@ function ExcursionRow({
           setValueAs: (value: string) =>
             value === '' ? undefined : Number(value),
         })}
+      />
+      <ShowPriceInPdfCheckbox
+        control={control}
+        name={`excursions.${index}.showPriceInPdf`}
       />
     </div>
   )

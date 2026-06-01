@@ -23,14 +23,23 @@ export const layoverSchema = z.object({
 
 export type Layover = z.infer<typeof layoverSchema>
 
+const timeOfDaySchema = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Indique la hora (HH:MM)')
+
 export const flightSchema = z
   .object({
     route: z.string().min(1, 'Indique la ruta del vuelo'),
     duration: z.string().min(1, 'Indique la duración del vuelo'),
+    dateFrom: z.date().optional(),
+    timeFrom: timeOfDaySchema.optional(),
+    dateTo: z.date().optional(),
+    timeTo: timeOfDaySchema.optional(),
     description: z.string().optional(),
     type: flightTypeSchema,
     layovers: z.array(layoverSchema),
     priceUsd: optionalUsdPriceSchema,
+    showPriceInPdf: z.boolean().default(true),
   })
   .superRefine((flight, ctx) => {
     if (flight.type === 'layovers' && flight.layovers.length === 0) {
@@ -38,6 +47,19 @@ export const flightSchema = z
         code: 'custom',
         message: 'Agregue al menos una escala',
         path: ['layovers'],
+      })
+    }
+
+    if (
+      flight.dateFrom !== undefined &&
+      flight.dateTo !== undefined &&
+      flight.dateFrom > flight.dateTo
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'La fecha de llegada debe ser posterior o igual a la de salida',
+        path: ['dateTo'],
       })
     }
   })
@@ -58,6 +80,7 @@ export const hotelSchema = z
     breakfast: z.boolean(),
     allInclusive: z.boolean(),
     priceUsd: optionalUsdPriceSchema,
+    showPriceInPdf: z.boolean().default(true),
   })
   .superRefine((hotel, ctx) => {
     const hasDateRange = hotel.dateFrom !== undefined && hotel.dateTo !== undefined
@@ -90,6 +113,7 @@ export const excursionSchema = z.object({
   name: z.string().min(1, 'Indique el nombre de la excursión o ticket'),
   description: z.string().optional(),
   priceUsd: optionalUsdPriceSchema,
+  showPriceInPdf: z.boolean().default(true),
 })
 
 export type Excursion = z.infer<typeof excursionSchema>
@@ -99,13 +123,12 @@ export const transferSchema = z.object({
   to: z.string().min(1, 'Indique el destino del traslado'),
   description: z.string().optional(),
   priceUsd: optionalUsdPriceSchema,
+  showPriceInPdf: z.boolean().default(true),
 })
 
 export type Transfer = z.infer<typeof transferSchema>
 
-const carRentalTimeSchema = z
-  .string()
-  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Indique la hora (HH:MM)')
+const carRentalTimeSchema = timeOfDaySchema
 
 export const carRentalSchema = z
   .object({
@@ -117,6 +140,7 @@ export const carRentalSchema = z
     returnLocation: z.string().min(1, 'Indique el lugar de devolución'),
     description: z.string().optional(),
     priceUsd: optionalUsdPriceSchema,
+    showPriceInPdf: z.boolean().default(true),
   })
   .superRefine((rental, ctx) => {
     if (rental.dateFrom === undefined) {
@@ -183,6 +207,7 @@ export const travelAssistanceSchema = z
     enabled: z.boolean(),
     description: z.string().optional(),
     priceUsd: optionalUsdPriceSchema,
+    showPriceInPdf: z.boolean().default(true),
   })
   .superRefine((assistance, ctx) => {
     if (assistance.enabled && !assistance.description?.trim()) {
@@ -263,10 +288,15 @@ export function defaultFlight(): Flight {
   return {
     route: '',
     duration: '',
+    dateFrom: undefined,
+    timeFrom: undefined,
+    dateTo: undefined,
+    timeTo: undefined,
     description: '',
     type: 'direct',
     layovers: [],
     priceUsd: undefined,
+    showPriceInPdf: true,
   }
 }
 
@@ -280,6 +310,7 @@ export function defaultHotel(): Hotel {
     breakfast: false,
     allInclusive: false,
     priceUsd: undefined,
+    showPriceInPdf: true,
   }
 }
 
@@ -288,6 +319,7 @@ export function defaultExcursion(): Excursion {
     name: '',
     description: '',
     priceUsd: undefined,
+    showPriceInPdf: true,
   }
 }
 
@@ -297,6 +329,7 @@ export function defaultTransfer(): Transfer {
     to: '',
     description: '',
     priceUsd: undefined,
+    showPriceInPdf: true,
   }
 }
 
@@ -310,6 +343,7 @@ export function defaultCarRental(): CarRental {
     returnLocation: '',
     description: '',
     priceUsd: undefined,
+    showPriceInPdf: true,
   }
 }
 
@@ -318,6 +352,7 @@ export function defaultTravelAssistance(): TravelAssistance {
     enabled: false,
     description: '',
     priceUsd: undefined,
+    showPriceInPdf: true,
   }
 }
 
@@ -353,20 +388,30 @@ export function sampleBudgetValues(): BudgetFormValues {
       {
         route: 'Buenos Aires (AEP) → Bariloche (BRC)',
         duration: '2h 15m',
+        dateFrom: new Date(2026, 5, 10),
+        timeFrom: '08:30',
+        dateTo: undefined,
+        timeTo: undefined,
         description: 'Vuelo ida — equipaje de mano incluido',
         type: 'direct',
         layovers: [],
         priceUsd: 285,
+        showPriceInPdf: true,
       },
       {
         route: 'Bariloche (BRC) → Buenos Aires (AEP)',
         duration: '5h 40m',
+        dateFrom: new Date(2026, 5, 17),
+        timeFrom: '14:15',
+        dateTo: undefined,
+        timeTo: undefined,
         description: 'Vuelo vuelta con escala',
         type: 'layovers',
         layovers: [
           { where: 'Córdoba (COR)', duration: '1h 20m' },
         ],
         priceUsd: 310,
+        showPriceInPdf: true,
       },
     ],
     hotels: [
@@ -379,6 +424,7 @@ export function sampleBudgetValues(): BudgetFormValues {
         breakfast: true,
         allInclusive: false,
         priceUsd: 890,
+        showPriceInPdf: true,
       },
       {
         name: 'Hostería del Cerro',
@@ -389,6 +435,7 @@ export function sampleBudgetValues(): BudgetFormValues {
         breakfast: false,
         allInclusive: false,
         priceUsd: 420,
+        showPriceInPdf: true,
       },
     ],
     excursions: [
@@ -396,11 +443,13 @@ export function sampleBudgetValues(): BudgetFormValues {
         name: 'Circuito Chico',
         description: 'Medio día con guía bilingüe',
         priceUsd: 65,
+        showPriceInPdf: true,
       },
       {
         name: 'Cerro Catedral — ticket lift',
         description: 'Pase diario',
         priceUsd: 48,
+        showPriceInPdf: true,
       },
     ],
     transfers: [
@@ -409,6 +458,7 @@ export function sampleBudgetValues(): BudgetFormValues {
         to: 'Hotel Llao Llao',
         description: 'Traslado privado ida',
         priceUsd: 55,
+        showPriceInPdf: true,
       },
     ],
     carRentals: [
@@ -421,12 +471,14 @@ export function sampleBudgetValues(): BudgetFormValues {
         returnLocation: 'Aeropuerto BRC',
         description: 'Compacto con seguro básico',
         priceUsd: 180,
+        showPriceInPdf: true,
       },
     ],
     travelAssistance: {
       enabled: true,
       description: 'Asistencia al viajero 7 días — cobertura USD 50.000',
       priceUsd: 42,
+      showPriceInPdf: true,
     },
     showTotalInPdf: true,
     hideIndividualPricesInPdf: false,

@@ -27,6 +27,10 @@ describe('draft serialization', () => {
     expect(restored.dateFrom?.toISOString()).toBe(sample.dateFrom?.toISOString())
     expect(restored.dateTo?.toISOString()).toBe(sample.dateTo?.toISOString())
     expect(restored.flights).toHaveLength(sample.flights.length)
+    expect(restored.flights[0]?.dateFrom?.toISOString()).toBe(
+      sample.flights[0]?.dateFrom?.toISOString(),
+    )
+    expect(restored.flights[0]?.timeFrom).toBe(sample.flights[0]?.timeFrom)
     expect(restored.hotels[0]?.dateFrom?.toISOString()).toBe(
       sample.hotels[0]?.dateFrom?.toISOString(),
     )
@@ -87,7 +91,7 @@ describe('draft serialization', () => {
         excursions: [],
         transfers: [],
         carRentals: [],
-        travelAssistance: { enabled: false, description: '' },
+        travelAssistance: { enabled: false, description: '', showPriceInPdf: true },
         showTotalInPdf: true,
         hideIndividualPricesInPdf: false,
         includeLogoInPdf: false,
@@ -108,7 +112,7 @@ describe('draft serialization', () => {
         excursions: [],
         transfers: [],
         carRentals: [],
-        travelAssistance: { enabled: false, description: '' },
+        travelAssistance: { enabled: false, description: '', showPriceInPdf: true },
         showTotalInPdf: true,
         hideIndividualPricesInPdf: true,
         includeLogoInPdf: false,
@@ -129,7 +133,7 @@ describe('draft serialization', () => {
         excursions: [],
         transfers: [],
         carRentals: [],
-        travelAssistance: { enabled: false, description: '' },
+        travelAssistance: { enabled: false, description: '', showPriceInPdf: true },
         showTotalInPdf: true,
         hideIndividualPricesInPdf: false,
         includeLogoInPdf: true,
@@ -161,6 +165,25 @@ describe('draft serialization', () => {
     expect(result.status).toBe('ok')
     if (result.status === 'ok') {
       expect(result.values.hideIndividualPricesInPdf).toBe(false)
+    }
+  })
+
+  it('parseDraftJson applies default showPriceInPdf for old line items', () => {
+    const envelope = createDraftEnvelope(sample)
+    const values = {
+      ...envelope.values,
+      flights: envelope.values.flights.map((flight) => {
+        const copy = { ...flight }
+        delete (copy as { showPriceInPdf?: boolean }).showPriceInPdf
+        return copy
+      }),
+    }
+    const raw = JSON.stringify({ ...envelope, values })
+    const result = parseDraftJson(raw)
+
+    expect(result.status).toBe('ok')
+    if (result.status === 'ok') {
+      expect(result.values.flights[0]?.showPriceInPdf).toBe(true)
     }
   })
 
@@ -237,7 +260,7 @@ describe('draft localStorage', () => {
         excursions: [],
         transfers: [],
         carRentals: [],
-        travelAssistance: { enabled: false, description: '' },
+        travelAssistance: { enabled: false, description: '', showPriceInPdf: true },
         showTotalInPdf: true,
         hideIndividualPricesInPdf: false,
         includeLogoInPdf: false,

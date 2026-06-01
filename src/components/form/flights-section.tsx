@@ -23,8 +23,10 @@ import {
 import { flightHasData, layoverHasData } from '@/lib/row-has-data'
 
 import { ConfirmRemoveButton } from './confirm-remove-button'
+import { DatePickerField } from './date-picker-field'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
+import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
 import { SectionEmptyState } from './section-empty-state'
 
 const FLIGHT_TYPE_LABELS: Record<FlightType, string> = {
@@ -102,6 +104,10 @@ export function FlightsSection({
 type FlightFieldErrors = FieldErrorsImpl<{
   route: string
   duration: string
+  dateFrom?: Date
+  timeFrom?: string
+  dateTo?: Date
+  timeTo?: string
   type: FlightType
   layovers: { where: string; duration: string }[]
   description?: string
@@ -171,6 +177,59 @@ function FlightRow({
           <FieldErrorMessage error={errors?.duration} />
         </div>
 
+        <Controller
+          control={control}
+          name={`flights.${index}.dateFrom`}
+          render={({ field }) => (
+            <DatePickerField
+              id={`flights.${index}.dateFrom`}
+              label="Fecha de salida (opcional)"
+              value={field.value}
+              onChange={field.onChange}
+              error={errors?.dateFrom}
+              placeholder="Fecha de salida"
+            />
+          )}
+        />
+        <div className="space-y-2">
+          <Label htmlFor={`flights.${index}.timeFrom`}>
+            Hora de salida (opcional)
+          </Label>
+          <Input
+            id={`flights.${index}.timeFrom`}
+            type="time"
+            aria-invalid={Boolean(errors?.timeFrom)}
+            {...register(`flights.${index}.timeFrom`)}
+          />
+          <FieldErrorMessage error={errors?.timeFrom} />
+        </div>
+        <Controller
+          control={control}
+          name={`flights.${index}.dateTo`}
+          render={({ field }) => (
+            <DatePickerField
+              id={`flights.${index}.dateTo`}
+              label="Fecha de llegada (opcional)"
+              value={field.value}
+              onChange={field.onChange}
+              error={errors?.dateTo}
+              placeholder="Fecha de llegada"
+            />
+          )}
+        />
+        <div className="space-y-2">
+          <Label htmlFor={`flights.${index}.timeTo`}>
+            Hora de llegada (opcional)
+          </Label>
+          <Input
+            id={`flights.${index}.timeTo`}
+            type="time"
+            aria-invalid={Boolean(errors?.timeTo)}
+            {...register(`flights.${index}.timeTo`)}
+          />
+          <FieldErrorMessage error={errors?.timeTo} />
+        </div>
+
         <PriceInput
           id={`flights.${index}.priceUsd`}
           error={errors?.priceUsd}
@@ -178,6 +237,10 @@ function FlightRow({
             setValueAs: (value: string) =>
               value === '' ? undefined : Number(value),
           })}
+        />
+        <ShowPriceInPdfCheckbox
+          control={control}
+          name={`flights.${index}.showPriceInPdf`}
         />
 
         <div className="space-y-2 sm:col-span-2">

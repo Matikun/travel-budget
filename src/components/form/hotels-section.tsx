@@ -24,6 +24,7 @@ import { ConfirmRemoveButton } from './confirm-remove-button'
 import { DatePickerField } from './date-picker-field'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
+import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
 import { SectionEmptyState } from './section-empty-state'
 
 const ROOM_TYPE_LABELS: Record<RoomType, string> = {
@@ -233,6 +234,11 @@ function HotelRow({ index, control, errors, register, onRemove }: HotelRowProps)
           })}
         />
       </div>
+
+      <ShowPriceInPdfCheckbox
+        control={control}
+        name={`hotels.${index}.showPriceInPdf`}
+      />
 
       <div className="flex flex-wrap gap-6">
         <Controller

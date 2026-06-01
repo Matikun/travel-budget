@@ -76,6 +76,18 @@ export function shouldShowIndividualPricesInPdf(
   return !budget.hideIndividualPricesInPdf
 }
 
+export type PriceVisibilityItem = {
+  showPriceInPdf?: boolean
+}
+
+/** Whether a single line price appears in the PDF (global + per-item toggles). */
+export function shouldShowItemPriceInPdf(
+  budget: Pick<BudgetFormValues, 'hideIndividualPricesInPdf'>,
+  item: PriceVisibilityItem,
+): boolean {
+  return shouldShowIndividualPricesInPdf(budget) && item.showPriceInPdf !== false
+}
+
 /** Parsed budget with required header dates (post-validation). */
 export function toValidatedBudget(data: BudgetFormValues): Budget | null {
   if (!data.dateFrom || !data.dateTo) {

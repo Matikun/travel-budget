@@ -3,10 +3,12 @@ import { describe, expect, it } from 'vitest'
 import {
   budgetSchema,
   defaultBudgetValues,
+  defaultCarRental,
   defaultExcursion,
   defaultFlight,
   defaultHotel,
   defaultTransfer,
+  defaultTravelAssistance,
   sampleBudgetValues,
 } from './schema'
 
@@ -315,6 +317,69 @@ describe('budgetSchema', () => {
     expect(result.success).toBe(false)
   })
 
+  it('accepts flight with optional departure and arrival dates', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [
+        {
+          route: 'EZE → BRC',
+          duration: '2h 15m',
+          dateFrom: new Date('2026-06-01'),
+          timeFrom: '08:30',
+          dateTo: new Date('2026-06-01'),
+          timeTo: '10:45',
+          type: 'direct',
+          layovers: [],
+          priceUsd: 350,
+        },
+      ],
+      hotels: [],
+      ...emptySections,
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects flight with invalid departure time', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [
+        {
+          route: 'EZE → BRC',
+          duration: '2h 15m',
+          timeFrom: '8:30',
+          type: 'direct',
+          layovers: [],
+        },
+      ],
+      hotels: [],
+      ...emptySections,
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects flight when dateFrom is after dateTo', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [
+        {
+          route: 'EZE → BRC',
+          duration: '2h 15m',
+          dateFrom: new Date('2026-06-10'),
+          dateTo: new Date('2026-06-01'),
+          type: 'direct',
+          layovers: [],
+        },
+      ],
+      hotels: [],
+      ...emptySections,
+    })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const paths = result.error.issues.map((issue) => issue.path.join('.'))
+      expect(paths).toContain('flights.0.dateTo')
+    }
+  })
+
   it('rejects hotel without dates or nights', () => {
     const result = budgetSchema.safeParse({
       ...baseHeader,
@@ -434,9 +499,45 @@ describe('defaultBudgetValues', () => {
   it('default factories match schema shape', () => {
     expect(defaultFlight().type).toBe('direct')
     expect(defaultFlight().layovers).toEqual([])
+    expect(defaultFlight().showPriceInPdf).toBe(true)
+    expect(defaultFlight().route).toBe('')
+    expect(defaultFlight().dateFrom).toBeUndefined()
+    expect(defaultFlight().timeFrom).toBeUndefined()
+    expect(defaultFlight().dateTo).toBeUndefined()
+    expect(defaultFlight().timeTo).toBeUndefined()
     expect(defaultHotel().roomType).toBe('standard')
+    expect(defaultHotel().showPriceInPdf).toBe(true)
     expect(defaultExcursion().name).toBe('')
+    expect(defaultExcursion().showPriceInPdf).toBe(true)
     expect(defaultTransfer().from).toBe('')
+    expect(defaultTransfer().showPriceInPdf).toBe(true)
+    expect(defaultCarRental().showPriceInPdf).toBe(true)
+    expect(defaultTravelAssistance().showPriceInPdf).toBe(true)
+  })
+
+  it('defaults showPriceInPdf to true when omitted on line items', () => {
+    const result = budgetSchema.safeParse({
+      ...baseHeader,
+      flights: [
+        {
+          route: 'A → B',
+          duration: '2h',
+          type: 'direct',
+          layovers: [],
+          priceUsd: 100,
+        },
+      ],
+      hotels: [],
+      excursions: [],
+      transfers: [],
+      carRentals: [],
+      travelAssistance: { enabled: false },
+      showTotalInPdf: true,
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.flights[0]?.showPriceInPdf).toBe(true)
+    }
   })
 })
 
