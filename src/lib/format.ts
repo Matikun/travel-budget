@@ -28,7 +28,7 @@ export function formatCarRentalDateTime(
 }
 
 /**
- * Formats a USD amount for display (en-US locale).
+ * Formats a USD amount for display (Argentina convention: US$ + es-AR grouping).
  * Returns empty string when value is undefined or null.
  */
 export function formatUsd(value: number | undefined | null): string {
@@ -36,10 +36,10 @@ export function formatUsd(value: number | undefined | null): string {
     return ''
   }
 
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  const amount = new Intl.NumberFormat('es-AR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value)
+
+  return `US$ ${amount}`
 }

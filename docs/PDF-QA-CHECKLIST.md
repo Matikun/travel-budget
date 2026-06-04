@@ -26,7 +26,7 @@ Manual checks after Phase 3 PDF changes. Run locally with `pnpm dev`, fill the f
 - [ ] Per-item “Mostrar precio en el PDF” unchecked hides that line’s price only; other lines still show when global hide is off.
 - [ ] “Ocultar precios por ítem en el PDF” hides all line prices but footer total still reflects them when shown.
 - [ ] Footer total appears only when “Mostrar total en el PDF” is on **and** sum &gt; 0.
-- [ ] USD amounts use en-US formatting (e.g. `$1,234.50`).
+- [ ] USD amounts use Argentina convention (e.g. `US$ 1.234,50`, not bare `$` or ARS).
 
 ## Layout & typography
 

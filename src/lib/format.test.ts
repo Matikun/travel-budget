@@ -4,15 +4,15 @@ import { formatCarRentalDateTime, formatDate, formatUsd } from './format'
 
 describe('formatUsd', () => {
   it('formats numbers as USD', () => {
-    expect(formatUsd(1234.5)).toBe('$1,234.50')
+    expect(formatUsd(1234.5)).toBe('US$ 1.234,50')
   })
 
   it('formats zero as USD', () => {
-    expect(formatUsd(0)).toBe('$0.00')
+    expect(formatUsd(0)).toBe('US$ 0,00')
   })
 
   it('formats large amounts with grouping', () => {
-    expect(formatUsd(1000000)).toBe('$1,000,000.00')
+    expect(formatUsd(1000000)).toBe('US$ 1.000.000,00')
   })
 
   it('returns empty string for undefined', () => {

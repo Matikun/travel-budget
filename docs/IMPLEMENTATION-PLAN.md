@@ -142,10 +142,10 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 - [x] **Car rentals** (empty by default): pickup/return dates and times, pickup/return locations, description, optional price.
 - [x] **Travel assistance** (optional): include checkbox; description + price when enabled.
 - [x] `calculateTotal()` in `lib/totals.ts` — sum defined positive prices only (includes car rentals).
-- [x] Sticky bar/card: **Total estimado: USD X,XXX.XX** (`en-US` formatting).
+- [x] Sticky bar/card: **Total estimado: US$ X.XXX,XX** (`es-AR` grouping).
 - [x] Checkbox **“Mostrar total en el PDF”** (default on).
 - [x] Checkbox **“Ocultar precios por ítem en el PDF”** (default off).
-- [x] Price inputs: USD prefix/suffix; positive numbers only.
+- [x] Price inputs: `US$` prefix; positive numbers only.
 - [x] **Tests:** `totals.test.ts` — empty, partial prices, assistance on/off, decimals; `format.test.ts` for currency.
 
 **Done when:** All sections exist; total updates live; tests cover edge cases.

@@ -18,7 +18,7 @@ type PriceInputProps = {
 
 export function PriceInput({
   id,
-  label = 'Precio (USD)',
+  label = 'Precio (US$)',
   error,
   className,
   ...inputProps
@@ -31,7 +31,7 @@ export function PriceInput({
           className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-foreground/65"
           aria-hidden
         >
-          USD
+          US$
         </span>
         <Input
           id={id}
@@ -39,16 +39,10 @@ export function PriceInput({
           min={0}
           step="0.01"
           placeholder="Opcional"
-          className="pl-12 pr-8"
+          className="pl-12"
           aria-invalid={Boolean(error)}
           {...inputProps}
         />
-        <span
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-foreground/65"
-          aria-hidden
-        >
-          $
-        </span>
       </div>
       <FieldErrorMessage error={error} />
     </div>
