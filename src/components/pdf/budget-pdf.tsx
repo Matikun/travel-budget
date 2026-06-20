@@ -20,6 +20,7 @@ import {
   budgetHasTransfers,
   budgetHasTravelAssistance,
   shouldShowItemPriceInPdf,
+  shouldShowItemPhotoInPdf,
   shouldShowPdfTotal,
 } from '@/lib/pdf-helpers'
 import type { Budget, CarRental, Excursion, Flight, Hotel, RoomType, Transfer } from '@/lib/schema'
@@ -51,6 +52,12 @@ function PriceColumn({
   }
 
   return <Text style={pdfStyles.itemPrice}>{formatUsd(priceUsd)}</Text>
+}
+
+function ItemPhoto({ photoDataUrl }: { photoDataUrl: string }) {
+  return (
+    <Image src={photoDataUrl} style={pdfStyles.itemPhoto} />
+  )
 }
 
 function formatFlightSchedule(flight: Flight): { label: string; value: string }[] {
@@ -105,6 +112,9 @@ function FlightItem({
           ) : null}
           {flight.description?.trim() ? (
             <Text style={pdfStyles.itemDetail}>{flight.description}</Text>
+          ) : null}
+          {shouldShowItemPhotoInPdf(flight) && flight.photoDataUrl ? (
+            <ItemPhoto photoDataUrl={flight.photoDataUrl} />
           ) : null}
         </View>
         <PriceColumn priceUsd={flight.priceUsd} show={showItemPrices} />
@@ -232,6 +242,9 @@ function HotelItem({
           {amenities.length > 0 ? (
             <Text style={pdfStyles.itemDetail}>{amenities.join(' · ')}</Text>
           ) : null}
+          {shouldShowItemPhotoInPdf(hotel) && hotel.photoDataUrl ? (
+            <ItemPhoto photoDataUrl={hotel.photoDataUrl} />
+          ) : null}
         </View>
         <PriceColumn priceUsd={hotel.priceUsd} show={showItemPrices} />
       </View>
@@ -261,6 +274,9 @@ function ExcursionItem({
           ) : null}
           {excursion.description?.trim() ? (
             <Text style={pdfStyles.itemDetail}>{excursion.description}</Text>
+          ) : null}
+          {shouldShowItemPhotoInPdf(excursion) && excursion.photoDataUrl ? (
+            <ItemPhoto photoDataUrl={excursion.photoDataUrl} />
           ) : null}
         </View>
         <PriceColumn

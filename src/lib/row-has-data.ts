@@ -28,6 +28,7 @@ export function flightHasData(flight: Flight): boolean {
     flight.dateTo !== undefined ||
     hasText(flight.timeTo) ||
     hasText(flight.description) ||
+    hasText(flight.photoDataUrl) ||
     hasPrice(flight.priceUsd) ||
     flight.layovers.some(layoverHasData)
   )
@@ -39,6 +40,7 @@ export function hotelHasData(hotel: Hotel): boolean {
     hotel.dateFrom !== undefined ||
     hotel.dateTo !== undefined ||
     hotel.nights !== undefined ||
+    hasText(hotel.photoDataUrl) ||
     hasPrice(hotel.priceUsd)
   )
 }
@@ -49,6 +51,7 @@ export function excursionHasData(excursion: Excursion): boolean {
     hasText(excursion.description) ||
     excursion.date !== undefined ||
     hasText(excursion.time) ||
+    hasText(excursion.photoDataUrl) ||
     hasPrice(excursion.priceUsd)
   )
 }

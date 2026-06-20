@@ -2,6 +2,12 @@ import { describe, expect, it } from 'vitest'
 
 import { buildItineraryEntries, getItineraryEntryDate } from './itinerary'
 import type { Budget } from './schema'
+import {
+  defaultExcursion,
+  defaultFlight,
+  defaultHotel,
+  defaultTransfer,
+} from './schema'
 
 function makeBudget(overrides: Partial<Budget> = {}): Budget {
   return {
@@ -33,49 +39,43 @@ describe('buildItineraryEntries', () => {
     const budget = makeBudget({
       flights: [
         {
+          ...defaultFlight(),
           route: 'Late flight',
           duration: '2h',
           dateFrom: new Date(2026, 5, 12),
           timeFrom: '18:00',
-          type: 'direct',
-          layovers: [],
-          showPriceInPdf: true,
         },
         {
+          ...defaultFlight(),
           route: 'Early flight',
           duration: '2h',
           dateFrom: new Date(2026, 5, 10),
           timeFrom: '08:30',
-          type: 'direct',
-          layovers: [],
-          showPriceInPdf: true,
         },
       ],
       hotels: [
         {
+          ...defaultHotel(),
           name: 'Hotel',
           dateFrom: new Date(2026, 5, 10),
           roomType: 'double',
-          breakfast: false,
-          allInclusive: false,
-          showPriceInPdf: true,
         },
       ],
       excursions: [
         {
+          ...defaultExcursion(),
           name: 'Tour',
           date: new Date(2026, 5, 11),
           time: '09:00',
-          showPriceInPdf: true,
         },
       ],
       transfers: [
         {
+          ...defaultTransfer(),
           from: 'A',
           to: 'B',
           date: new Date(2026, 5, 10),
           time: '07:00',
-          showPriceInPdf: true,
         },
       ],
     })
@@ -95,19 +95,15 @@ describe('buildItineraryEntries', () => {
     const budget = makeBudget({
       flights: [
         {
+          ...defaultFlight(),
           route: 'Undated',
           duration: '2h',
-          type: 'direct',
-          layovers: [],
-          showPriceInPdf: true,
         },
         {
+          ...defaultFlight(),
           route: 'Dated',
           duration: '2h',
           dateFrom: new Date(2026, 5, 10),
-          type: 'direct',
-          layovers: [],
-          showPriceInPdf: true,
         },
       ],
     })
@@ -122,7 +118,7 @@ describe('buildItineraryEntries', () => {
   it('getItineraryEntryDate returns the entry sort date', () => {
     const date = new Date(2026, 5, 11)
     const budget = makeBudget({
-      excursions: [{ name: 'Tour', date, showPriceInPdf: true }],
+      excursions: [{ ...defaultExcursion(), name: 'Tour', date }],
     })
 
     const entry = buildItineraryEntries(budget)[0]

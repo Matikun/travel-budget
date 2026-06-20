@@ -80,12 +80,22 @@ export type PriceVisibilityItem = {
   showPriceInPdf?: boolean
 }
 
+export type PhotoVisibilityItem = {
+  photoDataUrl?: string
+  showPhotoInPdf?: boolean
+}
+
 /** Whether a single line price appears in the PDF (global + per-item toggles). */
 export function shouldShowItemPriceInPdf(
   budget: Pick<BudgetFormValues, 'hideIndividualPricesInPdf'>,
   item: PriceVisibilityItem,
 ): boolean {
   return shouldShowIndividualPricesInPdf(budget) && item.showPriceInPdf !== false
+}
+
+/** Whether an item photo appears in the PDF. */
+export function shouldShowItemPhotoInPdf(item: PhotoVisibilityItem): boolean {
+  return Boolean(item.photoDataUrl?.trim()) && item.showPhotoInPdf !== false
 }
 
 /** Parsed budget with required header dates (post-validation). */

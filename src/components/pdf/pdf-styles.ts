@@ -110,6 +110,14 @@ export const pdfStyles = StyleSheet.create({
   itemMain: {
     flex: 1,
   },
+  itemPhoto: {
+    marginTop: 6,
+    marginBottom: 4,
+    maxHeight: 120,
+    maxWidth: 180,
+    objectFit: 'cover' as const,
+    borderRadius: 4,
+  },
   itemTitle: {
     fontSize: 10,
     fontWeight: 600,

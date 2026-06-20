@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react'
-import type { Control, FieldErrors, FieldErrorsImpl } from 'react-hook-form'
+import type { Control, FieldErrors, FieldErrorsImpl, UseFormSetValue } from 'react-hook-form'
 import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -25,6 +25,7 @@ import { flightHasData, layoverHasData } from '@/lib/row-has-data'
 import { ConfirmRemoveButton } from './confirm-remove-button'
 import { DatePickerField } from './date-picker-field'
 import { FieldErrorMessage } from './field-error'
+import { ItemPhotoField } from './item-photo-field'
 import { PriceInput } from './price-input'
 import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
 import { SectionEmptyState } from './section-empty-state'
@@ -40,12 +41,14 @@ type FlightsSectionProps = {
   register: ReturnType<
     typeof import('react-hook-form').useForm<BudgetFormValues>
   >['register']
+  setValue: UseFormSetValue<BudgetFormValues>
 }
 
 export function FlightsSection({
   control,
   errors,
   register,
+  setValue,
 }: FlightsSectionProps) {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -92,6 +95,7 @@ export function FlightsSection({
               control={control}
               errors={errors.flights?.[index]}
               register={register}
+              setValue={setValue}
               onRemove={() => remove(index)}
             />
           ))}
@@ -119,6 +123,7 @@ type FlightRowProps = {
   control: Control<BudgetFormValues>
   errors?: FlightFieldErrors
   register: FlightsSectionProps['register']
+  setValue: UseFormSetValue<BudgetFormValues>
   onRemove: () => void
 }
 
@@ -127,6 +132,7 @@ function FlightRow({
   control,
   errors,
   register,
+  setValue,
   onRemove,
 }: FlightRowProps) {
   const layoversArray = useFieldArray({
@@ -242,6 +248,17 @@ function FlightRow({
           control={control}
           name={`flights.${index}.showPriceInPdf`}
         />
+
+        <div className="sm:col-span-2">
+          <ItemPhotoField
+            control={control}
+            inputId={`flights.${index}.photo`}
+            photoFieldName={`flights.${index}.photoDataUrl`}
+            showFieldName={`flights.${index}.showPhotoInPdf`}
+            photoDataUrl={flightValues?.photoDataUrl}
+            setValue={setValue}
+          />
+        </div>
 
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor={`flights.${index}.description`}>

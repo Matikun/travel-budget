@@ -32,6 +32,11 @@ const timeOfDaySchema = z
   .string()
   .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Indique la hora (HH:MM)')
 
+const itemPhotoFields = {
+  photoDataUrl: z.string().optional(),
+  showPhotoInPdf: z.boolean().default(true),
+}
+
 export const flightSchema = z
   .object({
     route: z.string().min(1, 'Indique la ruta del vuelo'),
@@ -45,6 +50,7 @@ export const flightSchema = z
     layovers: z.array(layoverSchema),
     priceUsd: optionalUsdPriceSchema,
     showPriceInPdf: z.boolean().default(true),
+    ...itemPhotoFields,
   })
   .superRefine((flight, ctx) => {
     if (flight.type === 'layovers' && flight.layovers.length === 0) {
@@ -86,6 +92,7 @@ export const hotelSchema = z
     allInclusive: z.boolean(),
     priceUsd: optionalUsdPriceSchema,
     showPriceInPdf: z.boolean().default(true),
+    ...itemPhotoFields,
   })
   .superRefine((hotel, ctx) => {
     const hasDateRange = hotel.dateFrom !== undefined && hotel.dateTo !== undefined
@@ -121,6 +128,7 @@ export const excursionSchema = z.object({
   time: timeOfDaySchema.optional(),
   priceUsd: optionalUsdPriceSchema,
   showPriceInPdf: z.boolean().default(true),
+  ...itemPhotoFields,
 })
 
 export type Excursion = z.infer<typeof excursionSchema>
@@ -330,6 +338,8 @@ export function defaultFlight(): Flight {
     layovers: [],
     priceUsd: undefined,
     showPriceInPdf: true,
+    photoDataUrl: undefined,
+    showPhotoInPdf: true,
   }
 }
 
@@ -344,6 +354,8 @@ export function defaultHotel(): Hotel {
     allInclusive: false,
     priceUsd: undefined,
     showPriceInPdf: true,
+    photoDataUrl: undefined,
+    showPhotoInPdf: true,
   }
 }
 
@@ -355,6 +367,8 @@ export function defaultExcursion(): Excursion {
     time: undefined,
     priceUsd: undefined,
     showPriceInPdf: true,
+    photoDataUrl: undefined,
+    showPhotoInPdf: true,
   }
 }
 
@@ -435,6 +449,7 @@ export function sampleBudgetValues(): BudgetFormValues {
         layovers: [],
         priceUsd: 285,
         showPriceInPdf: true,
+        showPhotoInPdf: true,
       },
       {
         route: 'Bariloche (BRC) → Buenos Aires (AEP)',
@@ -450,6 +465,7 @@ export function sampleBudgetValues(): BudgetFormValues {
         ],
         priceUsd: 310,
         showPriceInPdf: true,
+        showPhotoInPdf: true,
       },
     ],
     hotels: [
@@ -463,6 +479,7 @@ export function sampleBudgetValues(): BudgetFormValues {
         allInclusive: false,
         priceUsd: 890,
         showPriceInPdf: true,
+        showPhotoInPdf: true,
       },
       {
         name: 'Hostería del Cerro',
@@ -474,6 +491,7 @@ export function sampleBudgetValues(): BudgetFormValues {
         allInclusive: false,
         priceUsd: 420,
         showPriceInPdf: true,
+        showPhotoInPdf: true,
       },
     ],
     excursions: [
@@ -484,6 +502,7 @@ export function sampleBudgetValues(): BudgetFormValues {
         time: '09:00',
         priceUsd: 65,
         showPriceInPdf: true,
+        showPhotoInPdf: true,
       },
       {
         name: 'Cerro Catedral — ticket lift',
@@ -492,6 +511,7 @@ export function sampleBudgetValues(): BudgetFormValues {
         time: undefined,
         priceUsd: 48,
         showPriceInPdf: true,
+        showPhotoInPdf: true,
       },
     ],
     transfers: [

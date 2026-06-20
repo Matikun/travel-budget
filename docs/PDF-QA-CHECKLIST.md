@@ -63,6 +63,14 @@ Manual checks after Phase 3 PDF changes. Run locally with `pnpm dev`, fill the f
 9. One flight with “Mostrar precio en el PDF” off, others on — only hidden lines omit price; total includes all.
 10. **Itinerario** layout with sample multi-day trip — chronological order; day headings; assistance at end.
 11. Itinerario with excursion missing date — form blocks preview/download with Spanish error.
+12. Flight/hotel/excursion with photo — image appears in PDF when **Mostrar foto en el PDF** is on.
+13. Photo toggle off — PDF row has no image; layout otherwise unchanged.
+
+## Item photos
+
+- [ ] Photo shown only when uploaded and “Mostrar foto en el PDF” is on.
+- [ ] No photo → layout matches pre-photo PDF.
+- [ ] Large image compressed on upload (max ~150 KB stored per item).
 
 ## Logo / branding
 

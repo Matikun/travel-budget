@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react'
-import type { Control, FieldErrors, FieldErrorsImpl } from 'react-hook-form'
+import type { Control, FieldErrors, FieldErrorsImpl, UseFormSetValue } from 'react-hook-form'
 import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ import { excursionHasData } from '@/lib/row-has-data'
 import { ConfirmRemoveButton } from './confirm-remove-button'
 import { DatePickerField } from './date-picker-field'
 import { FieldErrorMessage } from './field-error'
+import { ItemPhotoField } from './item-photo-field'
 import { PriceInput } from './price-input'
 import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
 import { SectionEmptyState } from './section-empty-state'
@@ -23,6 +24,7 @@ type ExcursionsSectionProps = {
     typeof import('react-hook-form').useForm<BudgetFormValues>
   >['register']
   pdfLayout: BudgetFormValues['pdfLayout']
+  setValue: UseFormSetValue<BudgetFormValues>
 }
 
 export function ExcursionsSection({
@@ -30,6 +32,7 @@ export function ExcursionsSection({
   errors,
   register,
   pdfLayout,
+  setValue,
 }: ExcursionsSectionProps) {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -77,6 +80,7 @@ export function ExcursionsSection({
               errors={errors.excursions?.[index]}
               register={register}
               pdfLayout={pdfLayout}
+              setValue={setValue}
               onRemove={() => remove(index)}
             />
           ))}
@@ -100,6 +104,7 @@ type ExcursionRowProps = {
   errors?: ExcursionFieldErrors
   register: ExcursionsSectionProps['register']
   pdfLayout: BudgetFormValues['pdfLayout']
+  setValue: UseFormSetValue<BudgetFormValues>
   onRemove: () => void
 }
 
@@ -109,6 +114,7 @@ function ExcursionRow({
   errors,
   register,
   pdfLayout,
+  setValue,
   onRemove,
 }: ExcursionRowProps) {
   const excursionValues = useWatch({
@@ -193,6 +199,15 @@ function ExcursionRow({
       <ShowPriceInPdfCheckbox
         control={control}
         name={`excursions.${index}.showPriceInPdf`}
+      />
+
+      <ItemPhotoField
+        control={control}
+        inputId={`excursions.${index}.photo`}
+        photoFieldName={`excursions.${index}.photoDataUrl`}
+        showFieldName={`excursions.${index}.showPhotoInPdf`}
+        photoDataUrl={excursionValues?.photoDataUrl}
+        setValue={setValue}
       />
     </div>
   )

@@ -325,12 +325,14 @@ export function BudgetForm() {
               control={control}
               errors={errors}
               register={register}
+              setValue={setValue}
             />
             <Separator />
             <HotelsSection
               control={control}
               errors={errors}
               register={register}
+              setValue={setValue}
             />
             <Separator />
             <ExcursionsSection
@@ -338,6 +340,7 @@ export function BudgetForm() {
               errors={errors}
               register={register}
               pdfLayout={pdfLayout}
+              setValue={setValue}
             />
             <Separator />
             <TransfersSection

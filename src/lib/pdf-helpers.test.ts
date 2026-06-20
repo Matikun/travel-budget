@@ -14,6 +14,7 @@ import {
   shouldShowPdfTotal,
   slugifyDestination,
 } from './pdf-helpers'
+import { defaultExcursion, defaultFlight, defaultHotel } from './schema'
 
 const sampleLogoDataUrl = 'data:image/png;base64,abc'
 describe('slugifyDestination', () => {
@@ -45,11 +46,9 @@ describe('budget section helpers', () => {
       budgetHasFlights({
         flights: [
           {
+            ...defaultFlight(),
             route: 'A',
             duration: '2h',
-            type: 'direct',
-            layovers: [],
-            showPriceInPdf: true,
           },
         ],
       }),
@@ -62,12 +61,9 @@ describe('budget section helpers', () => {
       budgetHasHotels({
         hotels: [
           {
+            ...defaultHotel(),
             name: 'Hotel',
-            roomType: 'standard',
-            breakfast: false,
-            allInclusive: false,
             nights: 2,
-            showPriceInPdf: true,
           },
         ],
       }),
@@ -78,7 +74,7 @@ describe('budget section helpers', () => {
     expect(budgetHasExcursions({ excursions: [] })).toBe(false)
     expect(
       budgetHasExcursions({
-        excursions: [{ name: 'City tour', showPriceInPdf: true }],
+        excursions: [{ ...defaultExcursion(), name: 'City tour' }],
       }),
     ).toBe(true)
   })

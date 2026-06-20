@@ -246,7 +246,7 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 | PR | Scope | Status |
 |----|--------|--------|
 | **PR1** | `pdfLayout: budget \| itinerary`; dates on excursions/transfers; itinerary validation; chronological PDF | **Done** |
-| **PR2** | Optional photo per flight/hotel/excursion | Planned |
+| **PR2** | Optional photo per flight/hotel/excursion | **Done** |
 
 **Closed decisions:** chronological (not tramos); excursion/transfer date optional in budget mode, **required for itinerary PDF**; travel assistance after timeline.
 

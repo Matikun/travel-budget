@@ -1,7 +1,7 @@
 # Implementation Plan — Chronological itinerary PDF & item photos
 
 **Date:** 2026-06-20  
-**Status:** **PR1 implemented** (2026-06-20) · PR2 photos planned  
+**Status:** **Implemented** (PR1: 2026-06-20 · PR2: 2026-06-20)  
 **Delivery:** Two separate PRs — PR1 itinerary, PR2 photos
 
 ---
@@ -158,13 +158,13 @@ Bump **`DRAFT_VERSION` to `2`** in PR1 (new fields + `pdfLayout` default).
 
 ### Tasks
 
-- [ ] Schema: `photoDataUrl` + `showPhotoInPdf` on flight, hotel, excursion
-- [ ] `lib/item-photo.ts` (or extend `agency-logo.ts` utilities): upload, resize, compress, validate size
-- [ ] Form: image input + preview + remove per row (flights, hotels, excursions)
-- [ ] PDF: render `<Image />` when `showPhotoInPdf` and data URL present (both layouts)
-- [ ] Draft v2 already exists — extend migration for photo fields
-- [ ] Tests: photo field defaults, PDF helper “should show photo”
-- [ ] Docs update + PDF-QA scenarios with/without photos
+- [x] Schema: `photoDataUrl` + `showPhotoInPdf` on flight, hotel, excursion
+- [x] `lib/item-photo.ts` (or extend `agency-logo.ts` utilities): upload, resize, compress, validate size
+- [x] Form: image input + preview + remove per row (flights, hotels, excursions)
+- [x] PDF: render `<Image />` when `showPhotoInPdf` and data URL present (both layouts)
+- [x] Draft v2 already exists — extend migration for photo fields
+- [x] Tests: photo field defaults, PDF helper “should show photo”
+- [x] Docs update + PDF-QA scenarios with/without photos
 
 ### Photo PDF layout (v1 proposal)
 

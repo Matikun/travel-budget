@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react'
-import type { Control, FieldErrors, FieldErrorsImpl } from 'react-hook-form'
+import type { Control, FieldErrors, FieldErrorsImpl, UseFormSetValue } from 'react-hook-form'
 import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -23,6 +23,7 @@ import { hotelHasData } from '@/lib/row-has-data'
 import { ConfirmRemoveButton } from './confirm-remove-button'
 import { DatePickerField } from './date-picker-field'
 import { FieldErrorMessage } from './field-error'
+import { ItemPhotoField } from './item-photo-field'
 import { PriceInput } from './price-input'
 import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
 import { SectionEmptyState } from './section-empty-state'
@@ -40,12 +41,14 @@ type HotelsSectionProps = {
   register: ReturnType<
     typeof import('react-hook-form').useForm<BudgetFormValues>
   >['register']
+  setValue: UseFormSetValue<BudgetFormValues>
 }
 
 export function HotelsSection({
   control,
   errors,
   register,
+  setValue,
 }: HotelsSectionProps) {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -92,6 +95,7 @@ export function HotelsSection({
               control={control}
               errors={errors.hotels?.[index]}
               register={register}
+              setValue={setValue}
               onRemove={() => remove(index)}
             />
           ))}
@@ -117,10 +121,18 @@ type HotelRowProps = {
   control: Control<BudgetFormValues>
   errors?: HotelFieldErrors
   register: HotelsSectionProps['register']
+  setValue: UseFormSetValue<BudgetFormValues>
   onRemove: () => void
 }
 
-function HotelRow({ index, control, errors, register, onRemove }: HotelRowProps) {
+function HotelRow({
+  index,
+  control,
+  errors,
+  register,
+  setValue,
+  onRemove,
+}: HotelRowProps) {
   const hotelValues = useWatch({
     control,
     name: `hotels.${index}`,
@@ -238,6 +250,15 @@ function HotelRow({ index, control, errors, register, onRemove }: HotelRowProps)
       <ShowPriceInPdfCheckbox
         control={control}
         name={`hotels.${index}.showPriceInPdf`}
+      />
+
+      <ItemPhotoField
+        control={control}
+        inputId={`hotels.${index}.photo`}
+        photoFieldName={`hotels.${index}.photoDataUrl`}
+        showFieldName={`hotels.${index}.showPhotoInPdf`}
+        photoDataUrl={hotelValues?.photoDataUrl}
+        setValue={setValue}
       />
 
       <div className="flex flex-wrap gap-6">

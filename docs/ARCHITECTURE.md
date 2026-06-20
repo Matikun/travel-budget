@@ -22,7 +22,7 @@ flowchart LR
 3. **Totals** — Pure functions in `lib/totals.ts` (sum optional USD prices).
 4. **Format** — `lib/format.ts` for currency (`US$` + `es-AR` grouping) and dates.
 5. **Itinerary** — `lib/itinerary.ts` sorts flights, hotels, excursions, transfers, and car rentals chronologically when `pdfLayout` is `itinerary`.
-6. **PDF** — `components/pdf/` renders only sections that have content; optional “Información adicional” from the header when filled; fixed price disclaimer from `lib/quote-copy.ts` on every export; footer total when `showTotalInPdf` and sum &gt; 0; line prices per item when `showPriceInPdf` is on and `hideIndividualPricesInPdf` is off (total still uses all entered prices). Optional agency logo resolved at generation time via `resolvePdfLogo()` in `lib/pdf-helpers.ts`. Layout branches on `pdfLayout`: budget (grouped sections) or itinerary (single timeline + travel assistance at end).
+6. **PDF** — `components/pdf/` renders only sections that have content; optional item photos on flights, hotels, and excursions when `showPhotoInPdf` is on; optional “Información adicional” from the header when filled; fixed price disclaimer from `lib/quote-copy.ts` on every export; footer total when `showTotalInPdf` and sum &gt; 0; line prices per item when `showPriceInPdf` is on and `hideIndividualPricesInPdf` is off (total still uses all entered prices). Optional agency logo resolved at generation time via `resolvePdfLogo()` in `lib/pdf-helpers.ts`. Layout branches on `pdfLayout`: budget (grouped sections) or itinerary (single timeline + travel assistance at end). Item photos processed via `lib/item-photo.ts`.
 
 ## Content Security Policy
 

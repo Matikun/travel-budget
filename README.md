@@ -6,6 +6,7 @@ Build travel quotes and itineraries from a form and export a client-ready PDF.
 
 - Capture trip header (destination, dates, passengers, optional additional notes) and optional sections: flights (optional departure/arrival date and time per flight), hotels, excursions (optional date/time), transfers (optional date/time), car rentals (pickup/return date, time, and location), travel assistance.
 - Two PDF layouts: **Presupuesto** (grouped by service type) or **Itinerario** (chronological timeline). Itinerary mode requires dates on excursions and transfers when those rows have data.
+- Optional photo per flight, hotel, and excursion row (PNG/JPG, compressed); toggle **Mostrar foto en el PDF** per item.
 - PDF quotes include a fixed price disclaimer (tariffs as of quote date, subject to change on booking platforms).
 - Optional USD prices per line; per-item checkbox to show/hide each line price on the PDF; estimated total with toggles to show/hide the footer total and all line prices at once.
 - Optional agency logo (PNG/JPG) in the PDF header; stored globally in the browser, toggled per quote.
