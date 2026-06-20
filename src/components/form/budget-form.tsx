@@ -35,6 +35,7 @@ import { ExcursionsSection } from './excursions-section'
 import { FlightsSection } from './flights-section'
 import { HeaderSection } from './header-section'
 import { HotelsSection } from './hotels-section'
+import { PdfLayoutSection } from './pdf-layout-section'
 import { PdfBrandingSection } from './pdf-branding-section'
 import { PdfPreviewDialog } from './pdf-preview-dialog'
 import { TransfersSection } from './transfers-section'
@@ -148,6 +149,7 @@ export function BudgetForm() {
 
   const watchedValues = useWatch({ control })
   const includeLogoInPdf = useWatch({ control, name: 'includeLogoInPdf' })
+  const pdfLayout = useWatch({ control, name: 'pdfLayout' }) ?? 'budget'
 
   const previewLogoDataUrl = previewBudget
     ? resolvePdfLogo(includeLogoInPdf, agencyLogo?.dataUrl)
@@ -335,12 +337,14 @@ export function BudgetForm() {
               control={control}
               errors={errors}
               register={register}
+              pdfLayout={pdfLayout}
             />
             <Separator />
             <TransfersSection
               control={control}
               errors={errors}
               register={register}
+              pdfLayout={pdfLayout}
             />
             <Separator />
             <CarRentalsSection
@@ -361,6 +365,8 @@ export function BudgetForm() {
               onAgencyLogoChange={setAgencyLogo}
               setValue={setValue}
             />
+            <Separator />
+            <PdfLayoutSection control={control} />
             <Separator />
             <div
               className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end"

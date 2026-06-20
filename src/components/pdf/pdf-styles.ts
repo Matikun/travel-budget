@@ -86,6 +86,16 @@ export const pdfStyles = StyleSheet.create({
     borderBottomColor: pdfColors.divider,
     lineHeight: 1.35,
   },
+  dayHeading: {
+    fontSize: 9,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: pdfColors.label,
+    marginTop: 8,
+    marginBottom: 6,
+    lineHeight: 1.35,
+  },
   item: {
     paddingVertical: 10,
     borderBottomWidth: 0.5,

@@ -239,12 +239,25 @@ Build travel quotes/itineraries from a form and export a client-ready PDF.
 
 ---
 
+## Phase 7 — Chronological itinerary PDF (implemented)
+
+**Status:** PR1 complete — see [`ITINERARY-AND-PHOTOS-PLAN.md`](./ITINERARY-AND-PHOTOS-PLAN.md).
+
+| PR | Scope | Status |
+|----|--------|--------|
+| **PR1** | `pdfLayout: budget \| itinerary`; dates on excursions/transfers; itinerary validation; chronological PDF | **Done** |
+| **PR2** | Optional photo per flight/hotel/excursion | Planned |
+
+**Closed decisions:** chronological (not tramos); excursion/transfer date optional in budget mode, **required for itinerary PDF**; travel assistance after timeline.
+
+---
+
 ## Phase 7+ — Backlog (post-MVP)
 
 | Item | Description |
 |------|-------------|
 | Brand | Agency name, colors in PDF and form (logo on PDF done — see logo plan) |
-| Templates | PDF variants (with/without prices, itinerary-only) |
+| Templates | Additional PDF variants beyond budget + chronological itinerary |
 | Duplicate quote | Clone data for another client |
 | History | Needs backend + auth |
 | Multi-currency | ARS + USD |

@@ -3,12 +3,16 @@ import {
   defaultBudgetValues,
   type BudgetFormValues,
   type CarRental,
+  type Excursion,
   type Flight,
   type Hotel,
+  type Transfer,
 } from './schema'
 
-export const DRAFT_STORAGE_KEY = 'travel-budget-draft-v1'
-export const DRAFT_VERSION = 1 as const
+export const DRAFT_STORAGE_KEY = 'travel-budget-draft-v2'
+export const LEGACY_DRAFT_STORAGE_KEY = 'travel-budget-draft-v1'
+export const DRAFT_VERSION = 2 as const
+const LEGACY_DRAFT_VERSION = 1 as const
 
 export type DraftParseResult =
   | { status: 'ok'; values: BudgetFormValues; savedAt: string }
@@ -26,6 +30,14 @@ type SerializedHotel = Omit<Hotel, 'dateFrom' | 'dateTo'> & {
   dateTo?: string
 }
 
+type SerializedExcursion = Omit<Excursion, 'date'> & {
+  date?: string
+}
+
+type SerializedTransfer = Omit<Transfer, 'date'> & {
+  date?: string
+}
+
 type SerializedCarRental = Omit<CarRental, 'dateFrom' | 'dateTo'> & {
   dateFrom?: string
   dateTo?: string
@@ -33,19 +45,34 @@ type SerializedCarRental = Omit<CarRental, 'dateFrom' | 'dateTo'> & {
 
 export type SerializedBudgetFormValues = Omit<
   BudgetFormValues,
-  'dateFrom' | 'dateTo' | 'flights' | 'hotels' | 'carRentals'
+  'dateFrom' | 'dateTo' | 'flights' | 'hotels' | 'excursions' | 'transfers' | 'carRentals'
 > & {
   dateFrom?: string
   dateTo?: string
   flights: SerializedFlight[]
   hotels: SerializedHotel[]
+  excursions: SerializedExcursion[]
+  transfers: SerializedTransfer[]
   carRentals?: SerializedCarRental[]
+  pdfLayout?: BudgetFormValues['pdfLayout']
 }
 
 export type DraftEnvelope = {
   version: typeof DRAFT_VERSION
   savedAt: string
   values: SerializedBudgetFormValues
+}
+
+type LegacyDraftEnvelope = {
+  version: typeof LEGACY_DRAFT_VERSION
+  savedAt: string
+  values: Omit<
+    SerializedBudgetFormValues,
+    'pdfLayout' | 'excursions' | 'transfers'
+  > & {
+    excursions: Array<Omit<SerializedExcursion, 'date' | 'time'>>
+    transfers: Array<Omit<SerializedTransfer, 'date' | 'time'>>
+  }
 }
 
 function serializeDate(value: Date | undefined): string | undefined {
@@ -77,6 +104,14 @@ export function serializeBudgetValues(
       dateFrom: serializeDate(hotel.dateFrom),
       dateTo: serializeDate(hotel.dateTo),
     })),
+    excursions: values.excursions.map((excursion) => ({
+      ...excursion,
+      date: serializeDate(excursion.date),
+    })),
+    transfers: values.transfers.map((transfer) => ({
+      ...transfer,
+      date: serializeDate(transfer.date),
+    })),
     carRentals: values.carRentals.map((rental) => ({
       ...rental,
       dateFrom: serializeDate(rental.dateFrom),
@@ -89,9 +124,11 @@ export function deserializeBudgetValues(
   serialized: SerializedBudgetFormValues,
 ): BudgetFormValues {
   return {
+    ...defaultBudgetValues(),
     ...serialized,
     dateFrom: deserializeDate(serialized.dateFrom),
     dateTo: deserializeDate(serialized.dateTo),
+    pdfLayout: serialized.pdfLayout ?? 'budget',
     flights: serialized.flights.map((flight) => ({
       ...flight,
       dateFrom: deserializeDate(flight.dateFrom),
@@ -102,10 +139,37 @@ export function deserializeBudgetValues(
       dateFrom: deserializeDate(hotel.dateFrom),
       dateTo: deserializeDate(hotel.dateTo),
     })),
+    excursions: serialized.excursions.map((excursion) => ({
+      ...excursion,
+      date: deserializeDate(excursion.date),
+    })),
+    transfers: serialized.transfers.map((transfer) => ({
+      ...transfer,
+      date: deserializeDate(transfer.date),
+    })),
     carRentals: (serialized.carRentals ?? []).map((rental) => ({
       ...rental,
       dateFrom: deserializeDate(rental.dateFrom),
       dateTo: deserializeDate(rental.dateTo),
+    })),
+  }
+}
+
+function migrateLegacyDraftValues(
+  values: LegacyDraftEnvelope['values'],
+): SerializedBudgetFormValues {
+  return {
+    ...values,
+    pdfLayout: 'budget',
+    excursions: values.excursions.map((excursion) => ({
+      ...excursion,
+      date: undefined,
+      time: undefined,
+    })),
+    transfers: values.transfers.map((transfer) => ({
+      ...transfer,
+      date: undefined,
+      time: undefined,
     })),
   }
 }
@@ -143,17 +207,38 @@ export function parseDraftJson(raw: string): DraftParseResult {
     return { status: 'invalid' }
   }
 
-  const envelope = parsed as Partial<DraftEnvelope>
+  const envelope = parsed as Partial<DraftEnvelope | LegacyDraftEnvelope>
+
+  if (typeof envelope.savedAt !== 'string') {
+    return { status: 'invalid' }
+  }
+
+  if (envelope.version === LEGACY_DRAFT_VERSION) {
+    if (typeof envelope.values !== 'object' || envelope.values === null) {
+      return { status: 'invalid' }
+    }
+
+    const values = deserializeBudgetValues(
+      migrateLegacyDraftValues(envelope.values as LegacyDraftEnvelope['values']),
+    )
+    const validation = budgetFormSchema.safeParse(values)
+
+    if (!validation.success) {
+      return { status: 'invalid' }
+    }
+
+    return {
+      status: 'ok',
+      values: validation.data,
+      savedAt: envelope.savedAt,
+    }
+  }
 
   if (envelope.version !== DRAFT_VERSION) {
     return { status: 'incompatible' }
   }
 
-  if (
-    typeof envelope.savedAt !== 'string' ||
-    typeof envelope.values !== 'object' ||
-    envelope.values === null
-  ) {
+  if (typeof envelope.values !== 'object' || envelope.values === null) {
     return { status: 'invalid' }
   }
 
@@ -210,6 +295,9 @@ export function draftHasContent(values: BudgetFormValues): boolean {
   if (values.includeLogoInPdf) {
     return true
   }
+  if (values.pdfLayout !== 'budget') {
+    return true
+  }
 
   return false
 }
@@ -220,7 +308,8 @@ export function readStoredDraft(storage?: Storage): DraftParseResult {
     return { status: 'missing' }
   }
 
-  const raw = store.getItem(DRAFT_STORAGE_KEY)
+  const raw =
+    store.getItem(DRAFT_STORAGE_KEY) ?? store.getItem(LEGACY_DRAFT_STORAGE_KEY)
   if (!raw) {
     return { status: 'missing' }
   }
@@ -238,11 +327,13 @@ export function writeStoredDraft(
   }
 
   store.setItem(DRAFT_STORAGE_KEY, serializeDraft(values))
+  store.removeItem(LEGACY_DRAFT_STORAGE_KEY)
 }
 
 export function clearStoredDraft(storage?: Storage): void {
   const store = storage ?? getBrowserStorage()
   store?.removeItem(DRAFT_STORAGE_KEY)
+  store?.removeItem(LEGACY_DRAFT_STORAGE_KEY)
 }
 
 export function exportDraftJson(values: BudgetFormValues): string {

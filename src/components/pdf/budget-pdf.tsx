@@ -7,6 +7,10 @@ import {
 } from '@react-pdf/renderer'
 
 import { formatCarRentalDateTime, formatDate, formatUsd } from '@/lib/format'
+import {
+  buildItineraryRenderItems,
+  type ItineraryEntry,
+} from '@/lib/itinerary'
 import { PRICE_DISCLAIMER } from '@/lib/quote-copy'
 import {
   budgetHasCarRentals,
@@ -18,7 +22,7 @@ import {
   shouldShowItemPriceInPdf,
   shouldShowPdfTotal,
 } from '@/lib/pdf-helpers'
-import type { Budget, CarRental, Flight, Hotel, RoomType } from '@/lib/schema'
+import type { Budget, CarRental, Excursion, Flight, Hotel, RoomType, Transfer } from '@/lib/schema'
 import { calculateBudgetTotal } from '@/lib/totals'
 
 import { pdfStyles } from './pdf-styles'
@@ -127,8 +131,12 @@ function formatHotelStay(hotel: Hotel): string {
   return parts.join(' · ')
 }
 
-function PdfHeaderTitle() {
-  return <Text style={pdfStyles.title}>Presupuesto de viaje</Text>
+function PdfHeaderTitle({ pdfLayout }: { pdfLayout: Budget['pdfLayout'] }) {
+  return (
+    <Text style={pdfStyles.title}>
+      {pdfLayout === 'itinerary' ? 'Itinerario de viaje' : 'Presupuesto de viaje'}
+    </Text>
+  )
 }
 
 function formatCarRentalSchedule(
@@ -231,6 +239,246 @@ function HotelItem({
   )
 }
 
+function ExcursionItem({
+  excursion,
+  showItemPrices,
+}: {
+  excursion: Excursion
+  showItemPrices: boolean
+}) {
+  const schedule = formatCarRentalDateTime(excursion.date, excursion.time)
+
+  return (
+    <View style={pdfStyles.item} wrap={false}>
+      <View style={pdfStyles.itemRow}>
+        <View style={pdfStyles.itemMain}>
+          <Text style={pdfStyles.itemTitle}>{excursion.name}</Text>
+          {schedule ? (
+            <Text style={pdfStyles.itemDetail}>
+              <Text style={pdfStyles.itemDetailLabel}>Cuándo: </Text>
+              {schedule}
+            </Text>
+          ) : null}
+          {excursion.description?.trim() ? (
+            <Text style={pdfStyles.itemDetail}>{excursion.description}</Text>
+          ) : null}
+        </View>
+        <PriceColumn
+          priceUsd={excursion.priceUsd}
+          show={showItemPrices}
+        />
+      </View>
+    </View>
+  )
+}
+
+function TransferItem({
+  transfer,
+  showItemPrices,
+}: {
+  transfer: Transfer
+  showItemPrices: boolean
+}) {
+  const schedule = formatCarRentalDateTime(transfer.date, transfer.time)
+
+  return (
+    <View style={pdfStyles.item} wrap={false}>
+      <View style={pdfStyles.itemRow}>
+        <View style={pdfStyles.itemMain}>
+          <Text style={pdfStyles.itemTitle}>
+            {transfer.from} → {transfer.to}
+          </Text>
+          {schedule ? (
+            <Text style={pdfStyles.itemDetail}>
+              <Text style={pdfStyles.itemDetailLabel}>Cuándo: </Text>
+              {schedule}
+            </Text>
+          ) : null}
+          {transfer.description?.trim() ? (
+            <Text style={pdfStyles.itemDetail}>{transfer.description}</Text>
+          ) : null}
+        </View>
+        <PriceColumn
+          priceUsd={transfer.priceUsd}
+          show={showItemPrices}
+        />
+      </View>
+    </View>
+  )
+}
+
+function ItineraryEntryItem({
+  budget,
+  entry,
+}: {
+  budget: Budget
+  entry: ItineraryEntry
+}) {
+  switch (entry.kind) {
+    case 'flight': {
+      const flight = budget.flights[entry.index]
+      if (!flight) {
+        return null
+      }
+      return (
+        <FlightItem
+          flight={flight}
+          index={entry.index}
+          showItemPrices={shouldShowItemPriceInPdf(budget, flight)}
+        />
+      )
+    }
+    case 'hotel': {
+      const hotel = budget.hotels[entry.index]
+      if (!hotel) {
+        return null
+      }
+      return (
+        <HotelItem
+          hotel={hotel}
+          index={entry.index}
+          showItemPrices={shouldShowItemPriceInPdf(budget, hotel)}
+        />
+      )
+    }
+    case 'excursion': {
+      const excursion = budget.excursions[entry.index]
+      if (!excursion) {
+        return null
+      }
+      return (
+        <ExcursionItem
+          excursion={excursion}
+          showItemPrices={shouldShowItemPriceInPdf(budget, excursion)}
+        />
+      )
+    }
+    case 'transfer': {
+      const transfer = budget.transfers[entry.index]
+      if (!transfer) {
+        return null
+      }
+      return (
+        <TransferItem
+          transfer={transfer}
+          showItemPrices={shouldShowItemPriceInPdf(budget, transfer)}
+        />
+      )
+    }
+    case 'carRental': {
+      const rental = budget.carRentals[entry.index]
+      if (!rental) {
+        return null
+      }
+      return (
+        <CarRentalItem
+          rental={rental}
+          index={entry.index}
+          showItemPrices={shouldShowItemPriceInPdf(budget, rental)}
+        />
+      )
+    }
+    default:
+      return null
+  }
+}
+
+function ItinerarySection({ budget }: { budget: Budget }) {
+  const items = buildItineraryRenderItems(budget)
+
+  if (items.length === 0) {
+    return null
+  }
+
+  return (
+    <View style={pdfStyles.section}>
+      <Text style={pdfStyles.sectionTitle}>Itinerario</Text>
+      {items.map(({ entry, showDayHeading, entryDate }, index) => (
+        <View key={`${entry.kind}-${entry.index}-${index}`}>
+          {showDayHeading && entryDate ? (
+            <Text style={pdfStyles.dayHeading}>{formatDate(entryDate)}</Text>
+          ) : null}
+          <ItineraryEntryItem budget={budget} entry={entry} />
+        </View>
+      ))}
+    </View>
+  )
+}
+
+function BudgetSections({ budget }: { budget: Budget }) {
+  return (
+    <>
+      {budgetHasFlights(budget) ? (
+        <View style={pdfStyles.section}>
+          <Text style={pdfStyles.sectionTitle}>Vuelos</Text>
+          {budget.flights.map((flight, index) => (
+            <FlightItem
+              key={index}
+              flight={flight}
+              index={index}
+              showItemPrices={shouldShowItemPriceInPdf(budget, flight)}
+            />
+          ))}
+        </View>
+      ) : null}
+
+      {budgetHasHotels(budget) ? (
+        <View style={pdfStyles.section}>
+          <Text style={pdfStyles.sectionTitle}>Hoteles</Text>
+          {budget.hotels.map((hotel, index) => (
+            <HotelItem
+              key={index}
+              hotel={hotel}
+              index={index}
+              showItemPrices={shouldShowItemPriceInPdf(budget, hotel)}
+            />
+          ))}
+        </View>
+      ) : null}
+
+      {budgetHasExcursions(budget) ? (
+        <View style={pdfStyles.section}>
+          <Text style={pdfStyles.sectionTitle}>Excursiones y tickets</Text>
+          {budget.excursions.map((excursion, index) => (
+            <ExcursionItem
+              key={index}
+              excursion={excursion}
+              showItemPrices={shouldShowItemPriceInPdf(budget, excursion)}
+            />
+          ))}
+        </View>
+      ) : null}
+
+      {budgetHasTransfers(budget) ? (
+        <View style={pdfStyles.section}>
+          <Text style={pdfStyles.sectionTitle}>Traslados</Text>
+          {budget.transfers.map((transfer, index) => (
+            <TransferItem
+              key={index}
+              transfer={transfer}
+              showItemPrices={shouldShowItemPriceInPdf(budget, transfer)}
+            />
+          ))}
+        </View>
+      ) : null}
+
+      {budgetHasCarRentals(budget) ? (
+        <View style={pdfStyles.section}>
+          <Text style={pdfStyles.sectionTitle}>Alquiler de auto</Text>
+          {budget.carRentals.map((rental, index) => (
+            <CarRentalItem
+              key={index}
+              rental={rental}
+              index={index}
+              showItemPrices={shouldShowItemPriceInPdf(budget, rental)}
+            />
+          ))}
+        </View>
+      ) : null}
+    </>
+  )
+}
+
 export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
   const totalUsd = calculateBudgetTotal(budget)
   const showTotal = shouldShowPdfTotal(budget, totalUsd)
@@ -243,11 +491,11 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
             <View style={pdfStyles.headerRow}>
               <Image src={logoDataUrl} style={pdfStyles.logo} />
               <View style={pdfStyles.headerText}>
-                <PdfHeaderTitle />
+                <PdfHeaderTitle pdfLayout={budget.pdfLayout} />
               </View>
             </View>
           ) : (
-            <PdfHeaderTitle />
+            <PdfHeaderTitle pdfLayout={budget.pdfLayout} />
           )}
         </View>
 
@@ -279,99 +527,11 @@ export function BudgetPdf({ budget, logoDataUrl }: BudgetPdfProps) {
           </View>
         ) : null}
 
-        {budgetHasFlights(budget) ? (
-          <View style={pdfStyles.section}>
-            <Text style={pdfStyles.sectionTitle}>Vuelos</Text>
-            {budget.flights.map((flight, index) => (
-              <FlightItem
-                key={index}
-                flight={flight}
-                index={index}
-                showItemPrices={shouldShowItemPriceInPdf(budget, flight)}
-              />
-            ))}
-          </View>
-        ) : null}
-
-        {budgetHasHotels(budget) ? (
-          <View style={pdfStyles.section}>
-            <Text style={pdfStyles.sectionTitle}>Hoteles</Text>
-            {budget.hotels.map((hotel, index) => (
-              <HotelItem
-                key={index}
-                hotel={hotel}
-                index={index}
-                showItemPrices={shouldShowItemPriceInPdf(budget, hotel)}
-              />
-            ))}
-          </View>
-        ) : null}
-
-        {budgetHasExcursions(budget) ? (
-          <View style={pdfStyles.section}>
-            <Text style={pdfStyles.sectionTitle}>Excursiones y tickets</Text>
-            {budget.excursions.map((excursion, index) => (
-              <View key={index} style={pdfStyles.item} wrap={false}>
-                <View style={pdfStyles.itemRow}>
-                  <View style={pdfStyles.itemMain}>
-                    <Text style={pdfStyles.itemTitle}>
-                      {excursion.name}
-                    </Text>
-                    {excursion.description?.trim() ? (
-                      <Text style={pdfStyles.itemDetail}>
-                        {excursion.description}
-                      </Text>
-                    ) : null}
-                  </View>
-                  <PriceColumn
-                    priceUsd={excursion.priceUsd}
-                    show={shouldShowItemPriceInPdf(budget, excursion)}
-                  />
-                </View>
-              </View>
-            ))}
-          </View>
-        ) : null}
-
-        {budgetHasTransfers(budget) ? (
-          <View style={pdfStyles.section}>
-            <Text style={pdfStyles.sectionTitle}>Traslados</Text>
-            {budget.transfers.map((transfer, index) => (
-              <View key={index} style={pdfStyles.item} wrap={false}>
-                <View style={pdfStyles.itemRow}>
-                  <View style={pdfStyles.itemMain}>
-                    <Text style={pdfStyles.itemTitle}>
-                      {transfer.from} → {transfer.to}
-                    </Text>
-                    {transfer.description?.trim() ? (
-                      <Text style={pdfStyles.itemDetail}>
-                        {transfer.description}
-                      </Text>
-                    ) : null}
-                  </View>
-                  <PriceColumn
-                    priceUsd={transfer.priceUsd}
-                    show={shouldShowItemPriceInPdf(budget, transfer)}
-                  />
-                </View>
-              </View>
-            ))}
-          </View>
-        ) : null}
-
-        {budgetHasCarRentals(budget) ? (
-          <View style={pdfStyles.section}>
-            <Text style={pdfStyles.sectionTitle}>Alquiler de auto</Text>
-            {budget.carRentals.map((rental, index) => (
-              <CarRentalItem
-                key={index}
-                rental={rental}
-                index={index}
-                showItemPrices={shouldShowItemPriceInPdf(budget, rental)}
-              />
-            ))}
-          </View>
-        ) : null}
+        {budget.pdfLayout === 'itinerary' ? (
+          <ItinerarySection budget={budget} />
+        ) : (
+          <BudgetSections budget={budget} />
+        )}
 
         {budgetHasTravelAssistance(budget) ? (
           <View style={pdfStyles.section}>

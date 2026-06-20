@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react'
 import type { Control, FieldErrors, FieldErrorsImpl } from 'react-hook-form'
-import { useFieldArray, useWatch } from 'react-hook-form'
+import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,7 @@ import { defaultTransfer, type BudgetFormValues } from '@/lib/schema'
 import { transferHasData } from '@/lib/row-has-data'
 
 import { ConfirmRemoveButton } from './confirm-remove-button'
+import { DatePickerField } from './date-picker-field'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
 import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
@@ -21,12 +22,14 @@ type TransfersSectionProps = {
   register: ReturnType<
     typeof import('react-hook-form').useForm<BudgetFormValues>
   >['register']
+  pdfLayout: BudgetFormValues['pdfLayout']
 }
 
 export function TransfersSection({
   control,
   errors,
   register,
+  pdfLayout,
 }: TransfersSectionProps) {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -73,6 +76,7 @@ export function TransfersSection({
               control={control}
               errors={errors.transfers?.[index]}
               register={register}
+              pdfLayout={pdfLayout}
               onRemove={() => remove(index)}
             />
           ))}
@@ -86,6 +90,8 @@ type TransferFieldErrors = FieldErrorsImpl<{
   from: string
   to: string
   description?: string
+  date?: Date
+  time?: string
   priceUsd?: number
 }>
 
@@ -94,6 +100,7 @@ type TransferRowProps = {
   control: Control<BudgetFormValues>
   errors?: TransferFieldErrors
   register: TransfersSectionProps['register']
+  pdfLayout: BudgetFormValues['pdfLayout']
   onRemove: () => void
 }
 
@@ -102,6 +109,7 @@ function TransferRow({
   control,
   errors,
   register,
+  pdfLayout,
   onRemove,
 }: TransferRowProps) {
   const transferValues = useWatch({
@@ -140,6 +148,39 @@ function TransferRow({
             {...register(`transfers.${index}.to`)}
           />
           <FieldErrorMessage error={errors?.to} />
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Controller
+          control={control}
+          name={`transfers.${index}.date`}
+          render={({ field }) => (
+            <DatePickerField
+              id={`transfers.${index}.date`}
+              label={
+                pdfLayout === 'itinerary'
+                  ? 'Fecha'
+                  : 'Fecha (opcional)'
+              }
+              value={field.value}
+              onChange={field.onChange}
+              error={errors?.date}
+              placeholder="Fecha del traslado"
+            />
+          )}
+        />
+        <div className="space-y-2">
+          <Label htmlFor={`transfers.${index}.time`}>
+            Hora (opcional)
+          </Label>
+          <Input
+            id={`transfers.${index}.time`}
+            type="time"
+            aria-invalid={Boolean(errors?.time)}
+            {...register(`transfers.${index}.time`)}
+          />
+          <FieldErrorMessage error={errors?.time} />
         </div>
       </div>
 

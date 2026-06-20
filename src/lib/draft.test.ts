@@ -34,13 +34,17 @@ describe('draft serialization', () => {
     expect(restored.hotels[0]?.dateFrom?.toISOString()).toBe(
       sample.hotels[0]?.dateFrom?.toISOString(),
     )
+    expect(restored.excursions[0]?.date?.toISOString()).toBe(
+      sample.excursions[0]?.date?.toISOString(),
+    )
+    expect(restored.pdfLayout).toBe(sample.pdfLayout)
   })
 
   it('serializeDraft includes version key in JSON', () => {
     const raw = serializeDraft(sample)
     const parsed = JSON.parse(raw) as { version: number; savedAt: string }
 
-    expect(parsed.version).toBe(1)
+    expect(parsed.version).toBe(2)
     expect(typeof parsed.savedAt).toBe('string')
   })
 
@@ -52,6 +56,40 @@ describe('draft serialization', () => {
     if (result.status === 'ok') {
       expect(result.values.destination).toBe('Bariloche')
       expect(result.values.flights).toHaveLength(2)
+    }
+  })
+
+  it('parseDraftJson migrates legacy v1 drafts', () => {
+    const legacyEnvelope = {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      values: serializeBudgetValues({
+        ...sample,
+        pdfLayout: undefined as unknown as typeof sample.pdfLayout,
+      }),
+    }
+    delete (legacyEnvelope.values as { pdfLayout?: string }).pdfLayout
+    legacyEnvelope.values.excursions = legacyEnvelope.values.excursions.map(
+      (excursion) => {
+        const copy = { ...excursion } as Record<string, unknown>
+        delete copy.date
+        return copy as typeof excursion
+      },
+    )
+    legacyEnvelope.values.transfers = legacyEnvelope.values.transfers.map(
+      (transfer) => {
+        const copy = { ...transfer } as Record<string, unknown>
+        delete copy.date
+        return copy as typeof transfer
+      },
+    )
+
+    const result = parseDraftJson(JSON.stringify(legacyEnvelope))
+
+    expect(result.status).toBe('ok')
+    if (result.status === 'ok') {
+      expect(result.values.pdfLayout).toBe('budget')
+      expect(result.values.excursions[0]?.date).toBeUndefined()
     }
   })
 
@@ -95,6 +133,7 @@ describe('draft serialization', () => {
         showTotalInPdf: true,
         hideIndividualPricesInPdf: false,
         includeLogoInPdf: false,
+        pdfLayout: 'budget',
       }),
     ).toBe(false)
   })
@@ -264,6 +303,7 @@ describe('draft localStorage', () => {
         showTotalInPdf: true,
         hideIndividualPricesInPdf: false,
         includeLogoInPdf: false,
+        pdfLayout: 'budget',
       },
       mockStorage,
     )

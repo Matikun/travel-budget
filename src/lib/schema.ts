@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+import { excursionHasData, transferHasData } from './row-has-data'
+
+export const pdfLayoutSchema = z.enum(['budget', 'itinerary'])
+export type PdfLayout = z.infer<typeof pdfLayoutSchema>
+
 export const flightTypeSchema = z.enum(['direct', 'layovers'])
 export type FlightType = z.infer<typeof flightTypeSchema>
 
@@ -112,6 +117,8 @@ export type Hotel = z.infer<typeof hotelSchema>
 export const excursionSchema = z.object({
   name: z.string().min(1, 'Indique el nombre de la excursión o ticket'),
   description: z.string().optional(),
+  date: z.date().optional(),
+  time: timeOfDaySchema.optional(),
   priceUsd: optionalUsdPriceSchema,
   showPriceInPdf: z.boolean().default(true),
 })
@@ -122,6 +129,8 @@ export const transferSchema = z.object({
   from: z.string().min(1, 'Indique el origen del traslado'),
   to: z.string().min(1, 'Indique el destino del traslado'),
   description: z.string().optional(),
+  date: z.date().optional(),
+  time: timeOfDaySchema.optional(),
   priceUsd: optionalUsdPriceSchema,
   showPriceInPdf: z.boolean().default(true),
 })
@@ -240,6 +249,7 @@ const budgetBaseSchema = z.object({
   showTotalInPdf: z.boolean(),
   hideIndividualPricesInPdf: z.boolean().default(false),
   includeLogoInPdf: z.boolean().default(false),
+  pdfLayout: pdfLayoutSchema.default('budget'),
 })
 
 export const budgetFormSchema = budgetBaseSchema.superRefine((budget, ctx) => {
@@ -267,6 +277,29 @@ export const budgetFormSchema = budgetBaseSchema.superRefine((budget, ctx) => {
       message:
         'La fecha de inicio debe ser anterior o igual a la fecha de fin',
       path: ['dateTo'],
+    })
+  }
+
+  if (budget.pdfLayout === 'itinerary') {
+    budget.excursions.forEach((excursion, index) => {
+      if (excursionHasData(excursion) && excursion.date === undefined) {
+        ctx.addIssue({
+          code: 'custom',
+          message:
+            'Indique la fecha de la excursión para la vista itinerario',
+          path: ['excursions', index, 'date'],
+        })
+      }
+    })
+
+    budget.transfers.forEach((transfer, index) => {
+      if (transferHasData(transfer) && transfer.date === undefined) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Indique la fecha del traslado para la vista itinerario',
+          path: ['transfers', index, 'date'],
+        })
+      }
     })
   }
 })
@@ -318,6 +351,8 @@ export function defaultExcursion(): Excursion {
   return {
     name: '',
     description: '',
+    date: undefined,
+    time: undefined,
     priceUsd: undefined,
     showPriceInPdf: true,
   }
@@ -328,6 +363,8 @@ export function defaultTransfer(): Transfer {
     from: '',
     to: '',
     description: '',
+    date: undefined,
+    time: undefined,
     priceUsd: undefined,
     showPriceInPdf: true,
   }
@@ -370,6 +407,7 @@ export function defaultBudgetValues(): BudgetFormValues {
     showTotalInPdf: true,
     hideIndividualPricesInPdf: false,
     includeLogoInPdf: false,
+    pdfLayout: 'budget',
   }
 }
 
@@ -442,12 +480,16 @@ export function sampleBudgetValues(): BudgetFormValues {
       {
         name: 'Circuito Chico',
         description: 'Medio día con guía bilingüe',
+        date: new Date(2026, 5, 11),
+        time: '09:00',
         priceUsd: 65,
         showPriceInPdf: true,
       },
       {
         name: 'Cerro Catedral — ticket lift',
         description: 'Pase diario',
+        date: new Date(2026, 5, 13),
+        time: undefined,
         priceUsd: 48,
         showPriceInPdf: true,
       },
@@ -457,6 +499,8 @@ export function sampleBudgetValues(): BudgetFormValues {
         from: 'Aeropuerto BRC',
         to: 'Hotel Llao Llao',
         description: 'Traslado privado ida',
+        date: new Date(2026, 5, 10),
+        time: '11:00',
         priceUsd: 55,
         showPriceInPdf: true,
       },
@@ -483,6 +527,7 @@ export function sampleBudgetValues(): BudgetFormValues {
     showTotalInPdf: true,
     hideIndividualPricesInPdf: false,
     includeLogoInPdf: false,
+    pdfLayout: 'budget',
   }
 }
 

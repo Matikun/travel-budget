@@ -47,6 +47,8 @@ export function excursionHasData(excursion: Excursion): boolean {
   return (
     hasText(excursion.name) ||
     hasText(excursion.description) ||
+    excursion.date !== undefined ||
+    hasText(excursion.time) ||
     hasPrice(excursion.priceUsd)
   )
 }
@@ -56,6 +58,8 @@ export function transferHasData(transfer: Transfer): boolean {
     hasText(transfer.from) ||
     hasText(transfer.to) ||
     hasText(transfer.description) ||
+    transfer.date !== undefined ||
+    hasText(transfer.time) ||
     hasPrice(transfer.priceUsd)
   )
 }

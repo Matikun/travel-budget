@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react'
 import type { Control, FieldErrors, FieldErrorsImpl } from 'react-hook-form'
-import { useFieldArray, useWatch } from 'react-hook-form'
+import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,7 @@ import { defaultExcursion, type BudgetFormValues } from '@/lib/schema'
 import { excursionHasData } from '@/lib/row-has-data'
 
 import { ConfirmRemoveButton } from './confirm-remove-button'
+import { DatePickerField } from './date-picker-field'
 import { FieldErrorMessage } from './field-error'
 import { PriceInput } from './price-input'
 import { ShowPriceInPdfCheckbox } from './show-price-in-pdf-checkbox'
@@ -21,12 +22,14 @@ type ExcursionsSectionProps = {
   register: ReturnType<
     typeof import('react-hook-form').useForm<BudgetFormValues>
   >['register']
+  pdfLayout: BudgetFormValues['pdfLayout']
 }
 
 export function ExcursionsSection({
   control,
   errors,
   register,
+  pdfLayout,
 }: ExcursionsSectionProps) {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -73,6 +76,7 @@ export function ExcursionsSection({
               control={control}
               errors={errors.excursions?.[index]}
               register={register}
+              pdfLayout={pdfLayout}
               onRemove={() => remove(index)}
             />
           ))}
@@ -85,6 +89,8 @@ export function ExcursionsSection({
 type ExcursionFieldErrors = FieldErrorsImpl<{
   name: string
   description?: string
+  date?: Date
+  time?: string
   priceUsd?: number
 }>
 
@@ -93,6 +99,7 @@ type ExcursionRowProps = {
   control: Control<BudgetFormValues>
   errors?: ExcursionFieldErrors
   register: ExcursionsSectionProps['register']
+  pdfLayout: BudgetFormValues['pdfLayout']
   onRemove: () => void
 }
 
@@ -101,6 +108,7 @@ function ExcursionRow({
   control,
   errors,
   register,
+  pdfLayout,
   onRemove,
 }: ExcursionRowProps) {
   const excursionValues = useWatch({
@@ -128,6 +136,39 @@ function ExcursionRow({
           {...register(`excursions.${index}.name`)}
         />
         <FieldErrorMessage error={errors?.name} />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Controller
+          control={control}
+          name={`excursions.${index}.date`}
+          render={({ field }) => (
+            <DatePickerField
+              id={`excursions.${index}.date`}
+              label={
+                pdfLayout === 'itinerary'
+                  ? 'Fecha'
+                  : 'Fecha (opcional)'
+              }
+              value={field.value}
+              onChange={field.onChange}
+              error={errors?.date}
+              placeholder="Fecha de la actividad"
+            />
+          )}
+        />
+        <div className="space-y-2">
+          <Label htmlFor={`excursions.${index}.time`}>
+            Hora (opcional)
+          </Label>
+          <Input
+            id={`excursions.${index}.time`}
+            type="time"
+            aria-invalid={Boolean(errors?.time)}
+            {...register(`excursions.${index}.time`)}
+          />
+          <FieldErrorMessage error={errors?.time} />
+        </div>
       </div>
 
       <div className="space-y-2">

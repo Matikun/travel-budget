@@ -27,6 +27,7 @@ const emptySections = {
   showTotalInPdf: true,
   hideIndividualPricesInPdf: false,
   includeLogoInPdf: false,
+  pdfLayout: 'budget' as const,
 }
 
 describe('budgetSchema', () => {

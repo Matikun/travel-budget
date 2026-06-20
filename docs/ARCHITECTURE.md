@@ -21,7 +21,8 @@ flowchart LR
 2. **Schema** — Single source of truth; types via `z.infer<typeof budgetSchema>`.
 3. **Totals** — Pure functions in `lib/totals.ts` (sum optional USD prices).
 4. **Format** — `lib/format.ts` for currency (`US$` + `es-AR` grouping) and dates.
-5. **PDF** — `components/pdf/` renders only sections that have content; optional “Información adicional” from the header when filled; fixed price disclaimer from `lib/quote-copy.ts` on every export; footer total when `showTotalInPdf` and sum &gt; 0; line prices per item when `showPriceInPdf` is on and `hideIndividualPricesInPdf` is off (total still uses all entered prices). Optional agency logo resolved at generation time via `resolvePdfLogo()` in `lib/pdf-helpers.ts`.
+5. **Itinerary** — `lib/itinerary.ts` sorts flights, hotels, excursions, transfers, and car rentals chronologically when `pdfLayout` is `itinerary`.
+6. **PDF** — `components/pdf/` renders only sections that have content; optional “Información adicional” from the header when filled; fixed price disclaimer from `lib/quote-copy.ts` on every export; footer total when `showTotalInPdf` and sum &gt; 0; line prices per item when `showPriceInPdf` is on and `hideIndividualPricesInPdf` is off (total still uses all entered prices). Optional agency logo resolved at generation time via `resolvePdfLogo()` in `lib/pdf-helpers.ts`. Layout branches on `pdfLayout`: budget (grouped sections) or itinerary (single timeline + travel assistance at end).
 
 ## Content Security Policy
 
@@ -42,7 +43,7 @@ If PDF generation fails inside Cursor’s embedded browser preview, open the app
 | `src/components/ui/` | shadcn/ui primitives |
 | `src/components/form/` | Form sections (header, flights, hotels, excursions, transfers, car rentals, travel assistance, PDF branding) |
 | `src/components/pdf/` | PDF template and styles (`pdf-styles.ts`) |
-| `src/lib/` | Domain logic: schema, totals, format, draft, pdf-helpers, agency logo, theme, CSP (no JSX) |
+| `src/lib/` | Domain logic: schema, totals, format, draft, itinerary, pdf-helpers, agency logo, theme, CSP (no JSX) |
 | `docs/` | Plans and architecture |
 
 ## Quality gates
